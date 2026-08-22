@@ -926,6 +926,31 @@ const getProjectsFromIDB = async (): Promise<any[] | null> => {
   }
 };
 
+const getDeletedProjectIds = (): string[] => {
+  try {
+    const saved = localStorage.getItem("andika_deleted_project_ids");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {
+    console.error("Gagal membaca deleted project IDs dari localStorage", e);
+  }
+  return [];
+};
+
+const saveDeletedProjectId = (id: string) => {
+  try {
+    const current = getDeletedProjectIds();
+    if (!current.includes(id)) {
+      const updated = [...current, id];
+      localStorage.setItem("andika_deleted_project_ids", JSON.stringify(updated));
+    }
+  } catch (e) {
+    console.error("Gagal menyimpan deleted project ID", e);
+  }
+};
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -937,6 +962,7 @@ export default function App() {
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   // Portfolio Projects State with localStorage & IndexedDB Persistence (Permanent Deletion Supported)
   const [projects, setProjects] = useState<any[]>(() => {
+    const deletedIds = getDeletedProjectIds();
     try {
       const isInitialized = localStorage.getItem("andika_projects_initialized");
       const saved = localStorage.getItem("andika_portfolio_projects");
@@ -944,19 +970,20 @@ export default function App() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) {
-            return parsed;
+            return parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
           }
         }
         return [];
       } else {
         localStorage.setItem("andika_projects_initialized", "true");
-        localStorage.setItem("andika_portfolio_projects", JSON.stringify(DEMO_PROJECTS));
-        return DEMO_PROJECTS;
+        const initial = DEMO_PROJECTS.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+        localStorage.setItem("andika_portfolio_projects", JSON.stringify(initial));
+        return initial;
       }
     } catch (e) {
       console.error("Gagal membaca data dari localStorage", e);
     }
-    return DEMO_PROJECTS;
+    return DEMO_PROJECTS.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
   });
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
   const [savedToast, setSavedToast] = useState<string | null>(null);
@@ -964,14 +991,11 @@ export default function App() {
 
   // Load from IndexedDB (Supports 500MB+ large files)
   useEffect(() => {
-    const isInitialized = localStorage.getItem("andika_projects_initialized");
     getProjectsFromIDB().then((saved) => {
-      if (isInitialized === "true") {
-        if (Array.isArray(saved)) {
-          setProjects(saved);
-        }
-      } else if (Array.isArray(saved) && saved.length > 0) {
-        setProjects(saved);
+      const deletedIds = getDeletedProjectIds();
+      if (Array.isArray(saved)) {
+        const cleanSaved = saved.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+        setProjects(cleanSaved);
       }
     });
   }, []);
@@ -1935,13 +1959,20 @@ export default function App() {
   };
 
   const confirmDeleteProject = (id: string, title?: string) => {
-    setProjects((prevProjects) => prevProjects.filter((p) => p.id !== id));
+    saveDeletedProjectId(id);
+    const updatedProjects = projects.filter((p) => p.id !== id);
+    setProjects(updatedProjects);
+    try {
+      localStorage.setItem("andika_portfolio_projects", JSON.stringify(updatedProjects));
+    } catch (e) {}
+    saveProjectsToIDB(updatedProjects);
+
     if (selectedArticle?.id === id) {
       setSelectedArticle(null);
     }
     setDeletingId(null);
     const shortTitle = title ? `"${title.slice(0, 25)}..."` : "Karya";
-    setSavedToast(`${shortTitle} berhasil dihapus!`);
+    setSavedToast(`${shortTitle} berhasil dihapus secara permanen!`);
     setTimeout(() => setSavedToast(null), 3000);
   };
 
@@ -3151,26 +3182,6 @@ export default function App() {
                   const pCat = (p.mainCategory || "").trim().toLowerCase();
                   return pCat === targetTitle || pCat === targetId;
                 });
-
-                if (categoryProjects.length === 0) {
-                  categoryProjects = DEMO_PROJECTS.filter((p) => {
-                    const pCat = (p.mainCategory || "").trim().toLowerCase();
-                    return pCat === targetTitle || pCat === targetId;
-                  });
-                }
-
-                if (categoryProjects.length === 0 && activeMegaMenuCatObj.megaMenu.featuredProjects) {
-                  categoryProjects = activeMegaMenuCatObj.megaMenu.featuredProjects.map((fp) => ({
-                    id: fp.id,
-                    title: fp.title,
-                    headline: fp.title,
-                    deck: fp.desc,
-                    fullContent: fp.desc,
-                    subCategory: fp.subCategory,
-                    imageUrl: fp.image,
-                    image: fp.image
-                  }));
-                }
 
                 const hasProjectsToShow = categoryProjects.length > 0;
 
