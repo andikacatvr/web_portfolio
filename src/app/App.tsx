@@ -59,6 +59,7 @@ import stickmanImg from "../imports/Untitled_design__13_.png";
 import nycSkylineImg from "../../gambar/nyc_skyline.png";
 import headerLogoImg from "../../gambar/andika's+webportfolio.svg";
 import servicesSymbolImg from "../../gambar/services_symbol.png";
+import ahelImg from "../../gambar/ahel.svg";
 import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
 import {
   fetchProjectsFromSupabase,
