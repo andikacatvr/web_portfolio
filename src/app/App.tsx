@@ -2036,8 +2036,8 @@ export default function App() {
         </div>
       )}
 
-      {/* FEATURED PROJECTS FILTER & SELECTION MODAL (MAX 6 CARDS) */}
-      {showFeaturedModal && (
+      {/* FEATURED PROJECTS FILTER & SELECTION MODAL (MAX 6 CARDS) - ADMIN ONLY */}
+      {showFeaturedModal && isAdminLoggedIn && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[680px] w-full max-h-[85vh] flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none relative">
             <button
@@ -4138,7 +4138,7 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2">
-                {activeCategory === "Beranda" ? (
+                {activeCategory === "Beranda" && isAdminLoggedIn ? (
                   <button
                     type="button"
                     onClick={() => setShowFeaturedModal(true)}
@@ -4147,16 +4147,14 @@ export default function App() {
                   >
                     <Filter size={14} className="text-black" />
                     <span>FILTER / SELECT PROJECTS ({displayedProjects.length}/6)</span>
-                    {isAdminLoggedIn && (
-                      <span className="bg-[#FFCC00] text-black text-[9px] px-1.5 py-0.5 font-black uppercase ml-1 border border-black">
-                        ADMIN
-                      </span>
-                    )}
+                    <span className="bg-[#FFCC00] text-black text-[9px] px-1.5 py-0.5 font-black uppercase ml-1 border border-black">
+                      ADMIN
+                    </span>
                   </button>
                 ) : (
                   <span className="text-xs font-black uppercase bg-white text-black px-3 py-1.5 border-2 border-black flex items-center gap-2">
                     <Filter size={14} className="text-black" />
-                    {displayedProjects.length} PROJECTS FOUND
+                    {displayedProjects.length} {activeCategory === "Beranda" ? "PROJECTS DISPLAYED" : "PROJECTS FOUND"}
                   </span>
                 )}
               </div>
