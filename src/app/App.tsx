@@ -725,7 +725,7 @@ function CalendarWidget({
             ) : (
               <button
                 onClick={handleGoToday}
-                className="text-[9px] bg-gray-400 hover:bg-gray-500 text-black px-1.5 py-0.5 font-black uppercase border border-black cursor-pointer transition-colors"
+                className="text-[9px] bg-[#D6D6D6] hover:bg-[#c4c4c4] text-black px-1.5 py-0.5 font-black uppercase border border-black cursor-pointer transition-colors"
                 title="Kembali ke Bulan Sekarang"
               >
                 &larr; GO TO TODAY
