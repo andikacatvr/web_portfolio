@@ -71,15 +71,16 @@ const getOrdinal = (n: number) => {
 const MONTH_NAMES_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTH_NAMES_FULL = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
-const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear: string = "AUGUST 2026"): Date => {
+const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear?: string): Date => {
   if (evtDate && typeof evtDate === "string" && evtDate.includes("-")) {
     const parts = evtDate.split("-").map(Number);
     if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
       return new Date(parts[0], parts[1] - 1, parts[2]);
     }
   }
-  let y = 2026;
-  let m = 7; // August 0-indexed
+  const now = new Date();
+  let y = now.getFullYear();
+  let m = now.getMonth();
   if (fallbackMonthYear) {
     const matchY = String(fallbackMonthYear).match(/\d{4}/);
     if (matchY) y = parseInt(matchY[0], 10);
@@ -103,7 +104,10 @@ const formatDateFull = (d: Date): string => {
 };
 
 const toISODateString = (d: Date): string => {
-  if (!d || isNaN(d.getTime())) return "2026-08-01";
+  if (!d || isNaN(d.getTime())) {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -586,25 +590,9 @@ function CalendarWidget({
 }) {
   const realToday = new Date();
 
-  // Dynamic View Month & Year State
-  const [viewYear, setViewYear] = useState<number>(() => {
-    if (calendarStatus?.monthYear) {
-      const match = calendarStatus.monthYear.match(/\d{4}/);
-      if (match) return parseInt(match[0], 10);
-    }
-    return realToday.getFullYear();
-  });
-
-  const [viewMonth, setViewMonth] = useState<number>(() => {
-    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-    if (calendarStatus?.monthYear) {
-      const upper = calendarStatus.monthYear.toUpperCase();
-      for (let i = 0; i < monthNames.length; i++) {
-        if (upper.includes(monthNames[i])) return i;
-      }
-    }
-    return realToday.getMonth();
-  })  // Settings State with localStorage Persistence
+  // Dynamic View Month & Year State (Defaults dynamically to current active month & year)
+  const [viewYear, setViewYear] = useState<number>(realToday.getFullYear());
+  const [viewMonth, setViewMonth] = useState<number>(realToday.getMonth());  // Settings State with localStorage Persistence
   const [settings, setSettings] = useState<CalendarSettings>(() => {
     try {
       const saved = localStorage.getItem("andika_calendar_settings");
@@ -728,14 +716,33 @@ function CalendarWidget({
           </button>
 
           <div className="flex items-center gap-1.5">
-            <span className="uppercase tracking-widest text-[10px] text-black">
-              {displayMonthYear}
-            </span>
-            {realToday.getFullYear() === viewYear && realToday.getMonth() === viewMonth && (
+            <select
+              value={viewMonth}
+              onChange={(e) => setViewMonth(Number(e.target.value))}
+              className="bg-white border border-black text-[10px] font-black uppercase px-1.5 py-0.5 focus:outline-none cursor-pointer"
+              title="Pilih Bulan"
+            >
+              {monthNamesFull.map((m, idx) => (
+                <option key={idx} value={idx}>{m.toUpperCase()}</option>
+              ))}
+            </select>
+
+            <select
+              value={viewYear}
+              onChange={(e) => setViewYear(Number(e.target.value))}
+              className="bg-white border border-black text-[10px] font-black uppercase px-1.5 py-0.5 focus:outline-none cursor-pointer"
+              title="Pilih Tahun"
+            >
+              {Array.from({ length: 7 }, (_, i) => realToday.getFullYear() - 2 + i).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+
+            {(realToday.getFullYear() !== viewYear || realToday.getMonth() !== viewMonth) && (
               <button
                 onClick={handleGoToday}
-                className="text-[9px] bg-[#FFCC00] text-black px-1.5 py-0.5 font-black uppercase hover:bg-yellow-400 cursor-pointer"
-                title="Today's Month Indicator"
+                className="text-[9px] bg-[#FFCC00] text-black px-1.5 py-0.5 font-black uppercase hover:bg-yellow-400 cursor-pointer border border-black"
+                title="Kembali ke Bulan Sekarang"
               >
                 TODAY
               </button>
@@ -1155,26 +1162,30 @@ export default function App() {
     setTimeout(() => setSavedToast(null), 3000);
   };
 
-  // Default events list for calendar
+  // Dynamic Default events list for calendar
+  const currentNow = new Date();
+  const curY = currentNow.getFullYear();
+  const curM = String(currentNow.getMonth() + 1).padStart(2, "0");
+
   const DEFAULT_CALENDAR_EVENTS = [
     {
       id: "evt-1",
-      startDate: "2026-08-01",
-      endDate: "2026-08-05",
+      startDate: `${curY}-${curM}-01`,
+      endDate: `${curY}-${curM}-05`,
       title: "",
       status: "SIBUK"
     },
     {
       id: "evt-2",
-      startDate: "2026-08-08",
-      endDate: "2026-08-18",
+      startDate: `${curY}-${curM}-08`,
+      endDate: `${curY}-${curM}-18`,
       title: "",
       status: "TERISI"
     },
     {
       id: "evt-3",
-      startDate: "2026-08-19",
-      endDate: "2026-08-31",
+      startDate: `${curY}-${curM}-19`,
+      endDate: `${curY}-${curM}-28`,
       title: "",
       status: "TERBUKA"
     }
@@ -1202,7 +1213,7 @@ export default function App() {
       console.error("Gagal membaca calendarStatus dari localStorage", e);
     }
     return {
-      monthYear: "JULY 2026",
+      monthYear: `${MONTH_NAMES_FULL[currentNow.getMonth()]} ${curY}`,
       statusNote: "Slot jadwal terbuka untuk pengerjaan proyek baru.",
       events: DEFAULT_CALENDAR_EVENTS
     };
