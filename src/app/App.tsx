@@ -65,7 +65,12 @@ import {
   fetchProjectsFromSupabase,
   upsertProjectToSupabase,
   deleteProjectFromSupabase,
-  subscribeToProjectsRealtime
+  subscribeToProjectsRealtime,
+  CertificateItem,
+  fetchCertificatesFromSupabase,
+  upsertCertificateToSupabase,
+  deleteCertificateFromSupabase,
+  subscribeToCertificatesRealtime
 } from "../lib/supabase";
 
 const getOrdinal = (n: number) => {
@@ -378,6 +383,39 @@ const DEFAULT_SERVICES = [
     id: "srv-6",
     title: "DIGITAL COMICS & ILLUSTRATION",
     desc: "Creating 4-panel comic strips, fable characters, and cartoon digital illustrations for web media."
+  }
+];
+
+const DEFAULT_CERTIFICATES: CertificateItem[] = [
+  {
+    id: "cert-1",
+    title: "Google UX Design Professional Certificate",
+    issuer: "Google / Coursera",
+    date: "2026",
+    imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=500&fit=crop&auto=format&q=80",
+    credentialUrl: "https://coursera.org/verify/professional-cert/google-ux",
+    category: "UI/UX DESIGN",
+    description: "Sertifikasi profesional merancang alur pengguna, wireframing, riset UX, dan desain antarmuka berbasis Figma."
+  },
+  {
+    id: "cert-2",
+    title: "Meta Front-End Developer Professional Certificate",
+    issuer: "Meta / Coursera",
+    date: "2025",
+    imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format&q=80",
+    credentialUrl: "https://coursera.org/verify/professional-cert/meta-frontend",
+    category: "ENGINEERING",
+    description: "Akreditasi tingkat lanjut untuk pengembangan aplikasi web modern dengan React, JavaScript ES6+, dan Tailwind CSS."
+  },
+  {
+    id: "cert-3",
+    title: "AWS Certified Cloud Practitioner",
+    issuer: "Amazon Web Services",
+    date: "2026",
+    imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop&auto=format&q=80",
+    credentialUrl: "https://aws.amazon.com/verification",
+    category: "CLOUD & DATA",
+    description: "Sertifikasi pemahaman arsitektur cloud, keamanan server, dan manajemen infrastruktur web di AWS."
   }
 ];
 
@@ -1337,6 +1375,111 @@ export default function App() {
 
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [servicesForm, setServicesForm] = useState<any[]>([]);
+
+  // Certificates State with localStorage & Supabase Sync
+  const [certificates, setCertificates] = useState<CertificateItem[]>(() => {
+    try {
+      const saved = localStorage.getItem("andika_certificates");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_CERTIFICATES;
+  });
+  const [selectedCertModal, setSelectedCertModal] = useState<CertificateItem | null>(null);
+  const [showManageCertModal, setShowManageCertModal] = useState(false);
+  const [editingCertId, setEditingCertId] = useState<string | null>(null);
+  const [certFormData, setCertFormData] = useState<CertificateItem>({
+    id: "",
+    title: "",
+    issuer: "",
+    date: new Date().getFullYear().toString(),
+    imageUrl: "",
+    credentialUrl: "",
+    category: "ENGINEERING",
+    description: ""
+  });
+
+  // Load Certificates from Supabase & Subscribe to Realtime
+  useEffect(() => {
+    fetchCertificatesFromSupabase().then((supabaseCerts) => {
+      if (supabaseCerts && Array.isArray(supabaseCerts) && supabaseCerts.length > 0) {
+        setCertificates(supabaseCerts);
+      }
+    });
+
+    const unsubscribe = subscribeToCertificatesRealtime((realtimeCerts) => {
+      if (realtimeCerts && Array.isArray(realtimeCerts)) {
+        setCertificates(realtimeCerts);
+      }
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // Save Certificates to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("andika_certificates", JSON.stringify(certificates));
+    } catch (e) {}
+  }, [certificates]);
+
+  const handleOpenAddCert = () => {
+    setEditingCertId(null);
+    setCertFormData({
+      id: "cert-" + Date.now(),
+      title: "",
+      issuer: "",
+      date: new Date().getFullYear().toString(),
+      imageUrl: "",
+      credentialUrl: "",
+      category: "ENGINEERING",
+      description: ""
+    });
+    setShowManageCertModal(true);
+  };
+
+  const handleEditCert = (cert: CertificateItem) => {
+    setEditingCertId(cert.id);
+    setCertFormData({ ...cert });
+    setShowManageCertModal(true);
+  };
+
+  const handleSaveCert = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!certFormData.title.trim()) {
+      alert("Harap masukkan nama/judul sertifikat.");
+      return;
+    }
+
+    if (editingCertId) {
+      setCertificates((prev) =>
+        prev.map((c) => (c.id === editingCertId ? certFormData : c))
+      );
+      upsertCertificateToSupabase(certFormData);
+      setSavedToast(`Sertifikat "${certFormData.title}" berhasil diperbarui!`);
+    } else {
+      const newCert = { ...certFormData, id: "cert-" + Date.now() };
+      setCertificates((prev) => [newCert, ...prev]);
+      upsertCertificateToSupabase(newCert);
+      setSavedToast(`Sertifikat "${certFormData.title}" berhasil ditambahkan!`);
+    }
+
+    setShowManageCertModal(false);
+    setTimeout(() => setSavedToast(null), 3000);
+  };
+
+  const handleDeleteCert = (id: string, title: string) => {
+    if (confirm(`Apakah kamu yakin ingin menghapus sertifikat "${title}"?`)) {
+      setCertificates((prev) => prev.filter((c) => c.id !== id));
+      deleteCertificateFromSupabase(id);
+      setSavedToast(`Sertifikat "${title}" berhasil dihapus secara permanen!`);
+      setTimeout(() => setSavedToast(null), 3000);
+    }
+  };
 
   const handleOpenServicesModal = () => {
     setServicesForm(JSON.parse(JSON.stringify(services)));
@@ -4329,6 +4472,110 @@ export default function App() {
             </div>
           </section>
 
+          {/* CERTIFICATES & CREDENTIALS SECTION */}
+          <section className="mb-16 border-b-2 border-black pb-16">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest bg-black text-[#FFCC00] px-2.5 py-1 inline-block mb-2">
+                  ACCREDITATIONS & LICENSES
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+                  CERTIFICATES & CREDENTIALS
+                </h2>
+                <p className="text-xs text-gray-600 font-serif mt-1">
+                  Dokumentasi lisensi resmi, akreditasi profesional, dan sertifikasi keahlian terverifikasi.
+                </p>
+              </div>
+
+              {isAdminLoggedIn && (
+                <button
+                  type="button"
+                  onClick={handleOpenAddCert}
+                  className="px-4 py-2 bg-[#FFCC00] text-black border-2 border-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>+ ADD CERTIFICATE (ADMIN)</span>
+                </button>
+              )}
+            </div>
+
+            {/* Certificates Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {certificates.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="group border-2 border-black bg-white p-5 flex flex-col justify-between hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                >
+                  <div>
+                    {/* Cover / Certificate Preview Image */}
+                    <div className="w-full h-44 bg-gray-200 border-2 border-black overflow-hidden mb-4 relative">
+                      {cert.imageUrl ? (
+                        <img
+                          src={cert.imageUrl}
+                          alt={cert.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-[#E3E3E3] text-black/40 font-black text-xs">
+                          NO CERTIFICATE IMAGE
+                        </div>
+                      )}
+                      <span className="absolute top-2 left-2 bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black">
+                        {cert.category || "General"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-black uppercase bg-[#FFCC00] text-black px-2 py-0.5 border border-black">
+                        {cert.issuer}
+                      </span>
+                      <span className="text-[10px] font-bold text-gray-500">
+                        {cert.date}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-black uppercase line-clamp-2 mb-2" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+                      {cert.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 line-clamp-3 mb-4 font-serif leading-relaxed">
+                      {cert.description || "Terverifikasi dan diakui secara resmi."}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-3 border-t border-black/20">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCertModal(cert)}
+                      className="flex-1 py-2 bg-black text-white hover:bg-[#FFCC00] hover:text-black border border-black text-xs font-black uppercase transition-colors text-center cursor-pointer"
+                    >
+                      VIEW CERTIFICATE 🔍
+                    </button>
+
+                    {isAdminLoggedIn && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleEditCert(cert)}
+                          className="p-2 border border-black hover:bg-black hover:text-[#FFCC00] transition-colors"
+                          title="Edit Certificate"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCert(cert.id, cert.title)}
+                          className="p-2 border border-black text-red-600 hover:bg-red-600 hover:text-white transition-colors"
+                          title="Delete Certificate"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
         </main>
       )}
 
@@ -4933,6 +5180,202 @@ export default function App() {
                   className="bg-black text-[#FFCC00] border-2 border-black px-5 py-2 text-xs font-black uppercase hover:bg-gray-800 cursor-pointer"
                 >
                   SIMPAN CATATAN
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CERTIFICATE DETAIL VIEWER MODAL */}
+      {selectedCertModal && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[650px] w-full max-h-[90vh] overflow-y-auto flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none relative">
+            <button
+              type="button"
+              onClick={() => setSelectedCertModal(null)}
+              className="absolute top-4 right-4 p-2 bg-black text-[#FFCC00] hover:bg-[#FFCC00] hover:text-black border-2 border-black transition-colors font-black text-xs cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            <span className="text-[10px] font-black uppercase tracking-widest bg-black text-[#FFCC00] px-2.5 py-1 inline-block self-start mb-3 border border-black">
+              {selectedCertModal.category || "ACCREDITATION"}
+            </span>
+
+            <h3 className="text-xl sm:text-2xl font-black uppercase mb-2" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+              {selectedCertModal.title}
+            </h3>
+
+            <div className="flex items-center gap-3 text-xs font-bold text-gray-600 mb-4 pb-3 border-b border-black/20">
+              <span className="bg-[#FFCC00] text-black px-2 py-0.5 border border-black font-black uppercase">
+                {selectedCertModal.issuer}
+              </span>
+              <span>Tahun: {selectedCertModal.date}</span>
+            </div>
+
+            {/* Image Preview */}
+            {selectedCertModal.imageUrl && (
+              <div className="w-full h-64 sm:h-80 bg-gray-200 border-2 border-black overflow-hidden mb-5">
+                <img
+                  src={selectedCertModal.imageUrl}
+                  alt={selectedCertModal.title}
+                  className="w-full h-full object-contain bg-black/90 p-2"
+                />
+              </div>
+            )}
+
+            <div className="space-y-3 text-xs font-serif text-gray-800 leading-relaxed mb-6">
+              <h4 className="font-black uppercase text-sm text-black">Deskripsi &amp; Pengakuan Keahlian:</h4>
+              <p>{selectedCertModal.description || "Sertifikat ini membuktikan keahlian profesional yang diakui secara resmi."}</p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-4 border-t-2 border-black">
+              {selectedCertModal.credentialUrl ? (
+                <a
+                  href={selectedCertModal.credentialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 bg-[#FFCC00] text-black border-2 border-black text-xs font-black uppercase hover:bg-black hover:text-[#FFCC00] transition-colors flex items-center gap-1.5 cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  <span>VERIFY CREDENTIAL ↗</span>
+                </a>
+              ) : (
+                <span className="text-xs font-bold italic text-gray-500">Credential URL not provided</span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedCertModal(null)}
+                className="px-4 py-2 bg-gray-200 text-black border-2 border-black text-xs font-black uppercase hover:bg-black hover:text-white transition-colors cursor-pointer"
+              >
+                TUTUP
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN MANAGE / EDIT CERTIFICATE MODAL */}
+      {showManageCertModal && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[600px] w-full max-h-[90vh] overflow-y-auto flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none relative">
+            <div className="flex items-center justify-between border-b-2 border-black pb-3 mb-5">
+              <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <Award size={20} className="text-[#FFCC00] fill-black" />
+                <span>{editingCertId ? "EDIT SERTIFIKAT (ADMIN)" : "TAMBAH SERTIFIKAT BARU (ADMIN)"}</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowManageCertModal(false)}
+                className="p-1 hover:bg-gray-200 border border-black cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCert} className="space-y-4 text-xs font-sans">
+              <div>
+                <label className="block font-black uppercase mb-1">Judul / Nama Sertifikat *</label>
+                <input
+                  type="text"
+                  required
+                  value={certFormData.title}
+                  onChange={(e) => setCertFormData({ ...certFormData, title: e.target.value })}
+                  placeholder="Misal: Google UX Design Professional Certificate"
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-black uppercase mb-1">Penerbit (Issuer) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={certFormData.issuer}
+                    onChange={(e) => setCertFormData({ ...certFormData, issuer: e.target.value })}
+                    placeholder="Misal: Google / Coursera / AWS"
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-black uppercase mb-1">Tahun / Tanggal *</label>
+                  <input
+                    type="text"
+                    required
+                    value={certFormData.date}
+                    onChange={(e) => setCertFormData({ ...certFormData, date: e.target.value })}
+                    placeholder="Misal: 2026 atau Agustus 2026"
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-black uppercase mb-1">Kategori Sertifikat</label>
+                  <select
+                    value={certFormData.category}
+                    onChange={(e) => setCertFormData({ ...certFormData, category: e.target.value })}
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none bg-white cursor-pointer"
+                  >
+                    <option value="ENGINEERING">ENGINEERING</option>
+                    <option value="UI/UX DESIGN">UI/UX DESIGN</option>
+                    <option value="CLOUD & DATA">CLOUD &amp; DATA</option>
+                    <option value="MEDIA & ART">MEDIA &amp; ART</option>
+                    <option value="GENERAL">GENERAL</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-black uppercase mb-1">URL Verifikasi Kredensial</label>
+                  <input
+                    type="url"
+                    value={certFormData.credentialUrl || ""}
+                    onChange={(e) => setCertFormData({ ...certFormData, credentialUrl: e.target.value })}
+                    placeholder="https://coursera.org/verify/..."
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-black uppercase mb-1">URL Gambar / Foto Sertifikat</label>
+                <input
+                  type="url"
+                  value={certFormData.imageUrl || ""}
+                  onChange={(e) => setCertFormData({ ...certFormData, imageUrl: e.target.value })}
+                  placeholder="https://images.unsplash.com/... atau URL gambar sertifikat"
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black uppercase mb-1">Deskripsi &amp; Ringkasan Keahlian</label>
+                <textarea
+                  rows={3}
+                  value={certFormData.description || ""}
+                  onChange={(e) => setCertFormData({ ...certFormData, description: e.target.value })}
+                  placeholder="Penjelasan singkat mengenai keterampilan yang diuji..."
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                />
+              </div>
+
+              <div className="pt-3 border-t-2 border-black flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowManageCertModal(false)}
+                  className="border-2 border-black px-4 py-2 text-xs font-black uppercase hover:bg-gray-200 cursor-pointer"
+                >
+                  BATAL
+                </button>
+                <button
+                  type="submit"
+                  className="bg-black text-[#FFCC00] border-2 border-black px-5 py-2 text-xs font-black uppercase hover:bg-gray-800 cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  {editingCertId ? "SIMPAN PERUBAHAN" : "+ TAMBAH SERTIFIKAT"}
                 </button>
               </div>
             </form>

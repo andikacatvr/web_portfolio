@@ -16,6 +16,9 @@ export const getSupabase = (): SupabaseClient | null => {
   return clientInstance;
 };
 
+// -------------------------------------------------------------
+// PROJECTS SUPABASE HELPERS
+// -------------------------------------------------------------
 export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
   try {
     const client = getSupabase();
@@ -155,6 +158,101 @@ export const subscribeToProjectsRealtime = (onUpdate: (projects: any[]) => void)
     };
   } catch (e) {
     console.error("Realtime subscription exception:", e);
+    return () => {};
+  }
+};
+
+// -------------------------------------------------------------
+// CERTIFICATES SUPABASE HELPERS
+// -------------------------------------------------------------
+export interface CertificateItem {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  imageUrl: string;
+  credentialUrl?: string;
+  category?: string;
+  description?: string;
+}
+
+export const fetchCertificatesFromSupabase = async (): Promise<CertificateItem[] | null> => {
+  try {
+    const client = getSupabase();
+    if (!client) return null;
+
+    const { data, error } = await client
+      .from("certificates")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error || !data || !Array.isArray(data)) return null;
+
+    return data.map((item) => ({
+      id: String(item.id),
+      title: item.title || "Untitled Certificate",
+      issuer: item.issuer || "Self-Issued / Verified",
+      date: item.date || "2026",
+      imageUrl: item.image_url || item.imageUrl || "",
+      credentialUrl: item.credential_url || item.credentialUrl || "",
+      category: item.category || "General",
+      description: item.description || ""
+    }));
+  } catch (e) {
+    console.error("Supabase fetch certificates exception:", e);
+    return null;
+  }
+};
+
+export const upsertCertificateToSupabase = async (cert: CertificateItem) => {
+  try {
+    const client = getSupabase();
+    if (!client) return;
+
+    const payload = {
+      id: String(cert.id),
+      title: cert.title || "",
+      issuer: cert.issuer || "",
+      date: cert.date || "",
+      image_url: cert.imageUrl || "",
+      credential_url: cert.credentialUrl || "",
+      category: cert.category || "General",
+      description: cert.description || ""
+    };
+
+    await client.from("certificates").upsert(payload);
+  } catch (e) {
+    console.error("Supabase upsert certificate exception:", e);
+  }
+};
+
+export const deleteCertificateFromSupabase = async (id: string) => {
+  try {
+    const client = getSupabase();
+    if (!client) return;
+    await client.from("certificates").delete().eq("id", id);
+  } catch (e) {
+    console.error("Supabase delete certificate exception:", e);
+  }
+};
+
+export const subscribeToCertificatesRealtime = (onUpdate: (certs: CertificateItem[]) => void) => {
+  const client = getSupabase();
+  if (!client) return () => {};
+
+  try {
+    const channel = client
+      .channel("public:certificates:realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "certificates" }, async () => {
+        const updated = await fetchCertificatesFromSupabase();
+        if (updated) onUpdate(updated);
+      })
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  } catch (e) {
     return () => {};
   }
 };
