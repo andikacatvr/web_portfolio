@@ -5265,13 +5265,36 @@ export default function App() {
                 <Award size={20} className="text-[#FFCC00] fill-black" />
                 <span>{editingCertId ? "EDIT SERTIFIKAT (ADMIN)" : "TAMBAH SERTIFIKAT BARU (ADMIN)"}</span>
               </h3>
-              <button
-                type="button"
-                onClick={() => setShowManageCertModal(false)}
-                className="p-1 hover:bg-gray-200 border border-black cursor-pointer"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                {!editingCertId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCertFormData({
+                        id: "cert-" + Date.now(),
+                        title: "Google Data Analytics Professional Certificate",
+                        issuer: "Google / Coursera",
+                        date: new Date().getFullYear().toString(),
+                        imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&auto=format&q=80",
+                        credentialUrl: "https://coursera.org/verify/professional-cert/google-data-analytics",
+                        category: "CLOUD & DATA",
+                        description: "Akreditasi keahlian pengolahan data, SQL, visualisasi R & Tableau, serta analisis bisnis berstandar industri."
+                      });
+                    }}
+                    className="px-2.5 py-1 bg-[#FFCC00] text-black border border-black font-black text-[10px] uppercase hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
+                    title="Isi otomatis formulir dengan data contoh"
+                  >
+                    ✨ ISI CONTOH DATA
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowManageCertModal(false)}
+                  className="p-1 hover:bg-gray-200 border border-black cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSaveCert} className="space-y-4 text-xs font-sans">
@@ -5348,8 +5371,32 @@ export default function App() {
                   value={certFormData.imageUrl || ""}
                   onChange={(e) => setCertFormData({ ...certFormData, imageUrl: e.target.value })}
                   placeholder="https://images.unsplash.com/... atau URL gambar sertifikat"
-                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 mb-1.5"
                 />
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-bold text-gray-500">Pilih Foto Sampel:</span>
+                  <button
+                    type="button"
+                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=500&fit=crop&auto=format&q=80" })}
+                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
+                  >
+                    🖼️ Sampel 1 (Tech)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format&q=80" })}
+                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
+                  >
+                    🖼️ Sampel 2 (Code)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop&auto=format&q=80" })}
+                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
+                  >
+                    🖼️ Sampel 3 (Cloud)
+                  </button>
+                </div>
               </div>
 
               <div>
