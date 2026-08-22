@@ -995,20 +995,19 @@ export default function App() {
 
   // Load from Supabase Database (Real-time global sync across all visitors & browsers)
   useEffect(() => {
-    fetchProjectsFromSupabase().then((supabaseProjects) => {
-      const deletedIds = getDeletedProjectIds();
-      if (supabaseProjects && Array.isArray(supabaseProjects) && supabaseProjects.length > 0) {
-        const cleanProjects = supabaseProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-        setProjects(cleanProjects);
-      } else {
-        getProjectsFromIDB().then((saved) => {
-          if (Array.isArray(saved) && saved.length > 0) {
-            const cleanSaved = saved.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-            setProjects(cleanSaved);
+    fetchProjectsFromSupabase()
+      .then((supabaseProjects) => {
+        const deletedIds = getDeletedProjectIds();
+        if (supabaseProjects && Array.isArray(supabaseProjects) && supabaseProjects.length > 0) {
+          const cleanProjects = supabaseProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+          if (cleanProjects.length > 0) {
+            setProjects(cleanProjects);
           }
-        });
-      }
-    });
+        }
+      })
+      .catch((err) => {
+        console.error("Supabase fetch promise error:", err);
+      });
   }, []);
 
   // Sync projects dynamically to IndexedDB & localStorage

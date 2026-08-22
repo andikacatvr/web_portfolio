@@ -5,26 +5,6 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIU
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export interface SupabaseProject {
-  id: string;
-  main_category: string;
-  sub_category: string;
-  headline: string;
-  deck?: string;
-  author?: string;
-  date?: string;
-  link_url?: string;
-  image?: string;
-  tags?: string[];
-  is_featured?: boolean;
-  bg_color?: string;
-  text_color?: string;
-  sub_text_color?: string;
-  badge_bg?: string;
-  caption?: string;
-  content?: string[];
-}
-
 export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
   try {
     const { data, error } = await supabase
@@ -37,28 +17,52 @@ export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
       return null;
     }
 
-    if (!data) return null;
+    if (!data || !Array.isArray(data)) return null;
 
-    // Map database snake_case to frontend camelCase
-    return data.map((item) => ({
-      id: item.id,
-      mainCategory: item.main_category,
-      subCategory: item.sub_category,
-      headline: item.headline,
-      deck: item.deck,
-      author: item.author,
-      date: item.date,
-      linkUrl: item.link_url,
-      image: item.image,
-      tags: Array.isArray(item.tags) ? item.tags : typeof item.tags === "string" ? JSON.parse(item.tags) : [],
-      isFeatured: item.is_featured,
-      bgColor: item.bg_color || "bg-[#E3E3E3]",
-      textColor: item.text_color || "text-black",
-      subTextColor: item.sub_text_color || "text-black/80",
-      badgeBg: item.badge_bg || "bg-black text-white",
-      caption: item.caption,
-      content: Array.isArray(item.content) ? item.content : typeof item.content === "string" ? JSON.parse(item.content) : []
-    }));
+    // Safely map database snake_case to frontend camelCase
+    return data.map((item) => {
+      let parsedTags: string[] = [];
+      if (Array.isArray(item.tags)) {
+        parsedTags = item.tags;
+      } else if (typeof item.tags === "string" && item.tags.trim()) {
+        try {
+          parsedTags = JSON.parse(item.tags);
+        } catch (e) {
+          parsedTags = [];
+        }
+      }
+
+      let parsedContent: string[] = [];
+      if (Array.isArray(item.content)) {
+        parsedContent = item.content;
+      } else if (typeof item.content === "string" && item.content.trim()) {
+        try {
+          parsedContent = JSON.parse(item.content);
+        } catch (e) {
+          parsedContent = [];
+        }
+      }
+
+      return {
+        id: String(item.id || "proj-" + Math.random()),
+        mainCategory: item.main_category || "ENGINEERING & DATA",
+        subCategory: item.sub_category || "Web Development",
+        headline: item.headline || "Untitled Project",
+        deck: item.deck || "",
+        author: item.author || "Andika Catur Ariantono",
+        date: item.date || "2026",
+        linkUrl: item.link_url || "",
+        image: item.image || "",
+        tags: Array.isArray(parsedTags) ? parsedTags : [],
+        isFeatured: item.is_featured !== undefined ? Boolean(item.is_featured) : true,
+        bgColor: item.bg_color || "bg-[#E3E3E3]",
+        textColor: item.text_color || "text-black",
+        subTextColor: item.sub_text_color || "text-black/80",
+        badgeBg: item.badge_bg || "bg-black text-white",
+        caption: item.caption || "",
+        content: Array.isArray(parsedContent) ? parsedContent : []
+      };
+    });
   } catch (e) {
     console.error("Supabase fetch exception:", e);
     return null;
