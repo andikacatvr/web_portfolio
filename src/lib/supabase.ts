@@ -1,13 +1,27 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://vyohpzwvrbtsbrwpzwnd.supabase.co";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5b2hwend2cmJ0c2Jyd3B6d25kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczODY0NzIsImV4cCI6MjEwMjk2MjQ3Mn0.XUhss832r2XPg8zHNkp8eVKWtvXmBYk6YOv46kjCfVQ";
+let clientInstance: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const getSupabase = (): SupabaseClient | null => {
+  if (clientInstance) return clientInstance;
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL || "https://vyohpzwvrbtsbrwpzwnd.supabase.co";
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5b2hwend2cmJ0c2Jyd3B6d25kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczODY0NzIsImV4cCI6MjEwMjk2MjQ3Mn0.XUhss832r2XPg8zHNkp8eVKWtvXmBYk6YOv46kjCfVQ";
+    if (url && key && typeof url === "string" && url.startsWith("http")) {
+      clientInstance = createClient(url, key);
+    }
+  } catch (e) {
+    console.error("Gagal menginisialisasi Supabase client:", e);
+  }
+  return clientInstance;
+};
 
 export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
   try {
-    const { data, error } = await supabase
+    const client = getSupabase();
+    if (!client) return null;
+
+    const { data, error } = await client
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
@@ -71,6 +85,9 @@ export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
 
 export const upsertProjectToSupabase = async (project: any) => {
   try {
+    const client = getSupabase();
+    if (!client) return;
+
     const payload = {
       id: String(project.id),
       main_category: project.mainCategory || "BERANDA",
@@ -91,7 +108,7 @@ export const upsertProjectToSupabase = async (project: any) => {
       content: Array.isArray(project.content) ? project.content : []
     };
 
-    const { error } = await supabase.from("projects").upsert(payload);
+    const { error } = await client.from("projects").upsert(payload);
     if (error) {
       console.error("Supabase upsert error:", error);
     }
@@ -102,7 +119,10 @@ export const upsertProjectToSupabase = async (project: any) => {
 
 export const deleteProjectFromSupabase = async (id: string) => {
   try {
-    const { error } = await supabase.from("projects").delete().eq("id", id);
+    const client = getSupabase();
+    if (!client) return;
+
+    const { error } = await client.from("projects").delete().eq("id", id);
     if (error) {
       console.error("Supabase delete error:", error);
     }
