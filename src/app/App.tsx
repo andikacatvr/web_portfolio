@@ -71,16 +71,15 @@ const getOrdinal = (n: number) => {
 const MONTH_NAMES_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTH_NAMES_FULL = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
-const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear?: string): Date => {
+const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear: string = "AUGUST 2026"): Date => {
   if (evtDate && typeof evtDate === "string" && evtDate.includes("-")) {
     const parts = evtDate.split("-").map(Number);
     if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
       return new Date(parts[0], parts[1] - 1, parts[2]);
     }
   }
-  const now = new Date();
-  let y = now.getFullYear();
-  let m = now.getMonth();
+  let y = 2026;
+  let m = 7; // August 0-indexed
   if (fallbackMonthYear) {
     const matchY = String(fallbackMonthYear).match(/\d{4}/);
     if (matchY) y = parseInt(matchY[0], 10);
@@ -104,10 +103,7 @@ const formatDateFull = (d: Date): string => {
 };
 
 const toISODateString = (d: Date): string => {
-  if (!d || isNaN(d.getTime())) {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  }
+  if (!d || isNaN(d.getTime())) return "2026-08-01";
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -590,7 +586,7 @@ function CalendarWidget({
 }) {
   const realToday = new Date();
 
-  // Dynamic View Month & Year State (Defaults dynamically to current active month & year)
+  // Dynamic View Month & Year State (Always initializes directly to the current real month and year)
   const [viewYear, setViewYear] = useState<number>(realToday.getFullYear());
   const [viewMonth, setViewMonth] = useState<number>(realToday.getMonth());  // Settings State with localStorage Persistence
   const [settings, setSettings] = useState<CalendarSettings>(() => {
@@ -716,28 +712,9 @@ function CalendarWidget({
           </button>
 
           <div className="flex items-center gap-1.5">
-            <select
-              value={viewMonth}
-              onChange={(e) => setViewMonth(Number(e.target.value))}
-              className="bg-white border border-black text-[10px] font-black uppercase px-1.5 py-0.5 focus:outline-none cursor-pointer"
-              title="Pilih Bulan"
-            >
-              {monthNamesFull.map((m, idx) => (
-                <option key={idx} value={idx}>{m.toUpperCase()}</option>
-              ))}
-            </select>
-
-            <select
-              value={viewYear}
-              onChange={(e) => setViewYear(Number(e.target.value))}
-              className="bg-white border border-black text-[10px] font-black uppercase px-1.5 py-0.5 focus:outline-none cursor-pointer"
-              title="Pilih Tahun"
-            >
-              {Array.from({ length: 7 }, (_, i) => realToday.getFullYear() - 2 + i).map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-
+            <span className="uppercase tracking-widest text-[10px] text-black font-black">
+              {displayMonthYear}
+            </span>
             {(realToday.getFullYear() !== viewYear || realToday.getMonth() !== viewMonth) && (
               <button
                 onClick={handleGoToday}
@@ -868,11 +845,10 @@ function CalendarWidget({
                   </span>
                   <span className="font-serif italic text-black/80">{evt.title || "Untitled Event..."}</span>
                 </div>
-                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 ${
-                  evt.status === "SIBUK" || evt.status === "BUSY" ? "bg-red-600 text-white" :
-                  evt.status === "TERISI" || evt.status === "BOOKED" ? "bg-[#FFCC00] text-black" :
-                  "bg-emerald-600 text-white"
-                }`}>
+                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 ${evt.status === "SIBUK" || evt.status === "BUSY" ? "bg-red-600 text-white" :
+                    evt.status === "TERISI" || evt.status === "BOOKED" ? "bg-[#FFCC00] text-black" :
+                      "bg-emerald-600 text-white"
+                  }`}>
                   {evt.status === "SIBUK" ? "BUSY" : evt.status === "TERISI" ? "BOOKED" : evt.status === "TERBUKA" ? "OPEN" : evt.status}
                 </span>
               </div>
@@ -1166,6 +1142,7 @@ export default function App() {
   const currentNow = new Date();
   const curY = currentNow.getFullYear();
   const curM = String(currentNow.getMonth() + 1).padStart(2, "0");
+  const currentMonthYearStr = `${MONTH_NAMES_FULL[currentNow.getMonth()]} ${curY}`;
 
   const DEFAULT_CALENDAR_EVENTS = [
     {
@@ -1185,7 +1162,7 @@ export default function App() {
     {
       id: "evt-3",
       startDate: `${curY}-${curM}-19`,
-      endDate: `${curY}-${curM}-28`,
+      endDate: `${curY}-${curM}-31`,
       title: "",
       status: "TERBUKA"
     }
@@ -1198,6 +1175,10 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === "object") {
+          if (!parsed.monthYear || parsed.monthYear.toUpperCase().includes("JULY")) {
+            parsed.monthYear = currentMonthYearStr;
+            parsed.events = DEFAULT_CALENDAR_EVENTS;
+          }
           if (!parsed.events || !Array.isArray(parsed.events)) {
             parsed.events = DEFAULT_CALENDAR_EVENTS;
           } else {
@@ -1213,7 +1194,7 @@ export default function App() {
       console.error("Gagal membaca calendarStatus dari localStorage", e);
     }
     return {
-      monthYear: `${MONTH_NAMES_FULL[currentNow.getMonth()]} ${curY}`,
+      monthYear: currentMonthYearStr,
       statusNote: "Slot jadwal terbuka untuk pengerjaan proyek baru.",
       events: DEFAULT_CALENDAR_EVENTS
     };
@@ -4603,195 +4584,192 @@ export default function App() {
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
                     return (
-                    <div key={evt.id || idx} className="border-2 border-black p-4 bg-gray-50/80 space-y-4 rounded-none relative">
-                      {/* Header Card */}
-                      <div className="flex items-center justify-between border-b border-black/30 pb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black uppercase text-xs bg-[#FFCC00] text-black px-2.5 py-1 rounded-none border border-black">
-                            Activity #{idx + 1}
-                          </span>
-                          <span className="text-[10px] font-bold uppercase text-black/70 bg-white px-2 py-0.5 border border-black/30">
-                            {formatDateFull(sDateObj)} - {formatDateFull(eDateObj)} ({evt.status === "SIBUK" ? "BUSY" : evt.status === "TERISI" ? "BOOKED" : evt.status === "TERBUKA" ? "OPEN" : evt.status})
-                          </span>
+                      <div key={evt.id || idx} className="border-2 border-black p-4 bg-gray-50/80 space-y-4 rounded-none relative">
+                        {/* Header Card */}
+                        <div className="flex items-center justify-between border-b border-black/30 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black uppercase text-xs bg-[#FFCC00] text-black px-2.5 py-1 rounded-none border border-black">
+                              Activity #{idx + 1}
+                            </span>
+                            <span className="text-[10px] font-bold uppercase text-black/70 bg-white px-2 py-0.5 border border-black/30">
+                              {formatDateFull(sDateObj)} - {formatDateFull(eDateObj)} ({evt.status === "SIBUK" ? "BUSY" : evt.status === "TERISI" ? "BOOKED" : evt.status === "TERBUKA" ? "OPEN" : evt.status})
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCalendarForm((prev: any) => ({
+                                ...prev,
+                                events: (prev.events || []).filter((e: any) => e.id !== evt.id)
+                              }));
+                            }}
+                            className="text-red-600 hover:bg-red-600 hover:text-white p-1.5 border border-red-600 transition-colors cursor-pointer rounded-none flex items-center justify-center"
+                            title="Hapus Activity"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCalendarForm((prev: any) => ({
-                              ...prev,
-                              events: (prev.events || []).filter((e: any) => e.id !== evt.id)
-                            }));
-                          }}
-                          className="text-red-600 hover:bg-red-600 hover:text-white p-1.5 border border-red-600 transition-colors cursor-pointer rounded-none flex items-center justify-center"
-                          title="Hapus Activity"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
 
-                      {/* Form Field 1: Nama Kegiatan (Clean text input + preset chips) */}
-                      <div>
-                        <label className="block text-[10px] font-black uppercase text-black/80 mb-1">
-                          Activity:
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Untitled Event..."
-                          value={evt.title}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setCalendarForm((prev: any) => ({
-                              ...prev,
-                              events: prev.events.map((item: any) => item.id === evt.id ? { ...item, title: val } : item)
-                            }));
-                          }}
-                          className="w-full p-2.5 border-2 border-black text-xs font-bold bg-white focus:outline-none focus:ring-1 focus:ring-black rounded-none placeholder:text-black/40 placeholder:italic font-jost"
-                          style={{ fontFamily: "'Jost', sans-serif" }}
-                        />
-                      </div>
-
-                      {/* Form Field 2: Single Date-Range Selector (Input Field Tunggal Start Date - End Date with Popover Calendar) */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="text-[10px] font-black uppercase text-black/80 flex items-center gap-1">
-                            <CalendarIcon size={12} className="text-black" /> Start Date - End Date:
+                        {/* Form Field 1: Nama Kegiatan (Clean text input + preset chips) */}
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-black/80 mb-1">
+                            Activity:
                           </label>
-                          <span className="text-[10px] font-black text-black bg-gray-100 border border-black px-2 py-0.5">
-                            {formatDateFull(sDateObj)} TO {formatDateFull(eDateObj)} ({diffDays} DAYS)
-                          </span>
+                          <input
+                            type="text"
+                            placeholder="Untitled Event..."
+                            value={evt.title}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setCalendarForm((prev: any) => ({
+                                ...prev,
+                                events: prev.events.map((item: any) => item.id === evt.id ? { ...item, title: val } : item)
+                              }));
+                            }}
+                            className="w-full p-2.5 border-2 border-black text-xs font-bold bg-white focus:outline-none focus:ring-1 focus:ring-black rounded-none placeholder:text-black/40 placeholder:italic font-jost"
+                            style={{ fontFamily: "'Jost', sans-serif" }}
+                          />
                         </div>
 
-                        {/* Single Control Box displaying Start Date - End Date */}
-                        <div className="relative">
-                          <div className="w-full bg-white border-2 border-black p-2 flex flex-wrap items-center justify-between gap-2">
-                            {/* Left: Input Tunggal Visual Display */}
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[10px] font-black uppercase text-black/80">Start:</span>
-                                <input
-                                  type="date"
-                                  value={toISODateString(sDateObj)}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (!val) return;
-                                    setCalendarForm((prev: any) => ({
-                                      ...prev,
-                                      events: prev.events.map((item: any) => {
-                                        if (item.id === evt.id) {
-                                          const newStart = val;
-                                          const newEnd = item.endDate && item.endDate < val ? val : (item.endDate || val);
-                                          return { ...item, startDate: newStart, endDate: newEnd };
-                                        }
-                                        return item;
-                                      })
-                                    }));
-                                  }}
-                                  className="bg-gray-100 hover:bg-white text-black text-xs font-black p-1 px-2 border border-black focus:outline-none cursor-pointer rounded-none font-jost"
-                                  style={{ fontFamily: "'Jost', sans-serif" }}
-                                />
-                              </div>
+                        {/* Form Field 2: Single Date-Range Selector (Input Field Tunggal Start Date - End Date with Popover Calendar) */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-[10px] font-black uppercase text-black/80 flex items-center gap-1">
+                              <CalendarIcon size={12} className="text-black" /> Start Date - End Date:
+                            </label>
+                            <span className="text-[10px] font-black text-black bg-gray-100 border border-black px-2 py-0.5">
+                              {formatDateFull(sDateObj)} TO {formatDateFull(eDateObj)} ({diffDays} DAYS)
+                            </span>
+                          </div>
 
-                              <span className="text-black font-black text-xs">➔</span>
+                          {/* Single Control Box displaying Start Date - End Date */}
+                          <div className="relative">
+                            <div className="w-full bg-white border-2 border-black p-2 flex flex-wrap items-center justify-between gap-2">
+                              {/* Left: Input Tunggal Visual Display */}
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] font-black uppercase text-black/80">Start:</span>
+                                  <input
+                                    type="date"
+                                    value={toISODateString(sDateObj)}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      if (!val) return;
+                                      setCalendarForm((prev: any) => ({
+                                        ...prev,
+                                        events: prev.events.map((item: any) => {
+                                          if (item.id === evt.id) {
+                                            const newStart = val;
+                                            const newEnd = item.endDate && item.endDate < val ? val : (item.endDate || val);
+                                            return { ...item, startDate: newStart, endDate: newEnd };
+                                          }
+                                          return item;
+                                        })
+                                      }));
+                                    }}
+                                    className="bg-gray-100 hover:bg-white text-black text-xs font-black p-1 px-2 border border-black focus:outline-none cursor-pointer rounded-none font-jost"
+                                    style={{ fontFamily: "'Jost', sans-serif" }}
+                                  />
+                                </div>
 
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[10px] font-black uppercase text-black/80">End:</span>
-                                <input
-                                  type="date"
-                                  value={toISODateString(eDateObj)}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (!val) return;
-                                    setCalendarForm((prev: any) => ({
-                                      ...prev,
-                                      events: prev.events.map((item: any) => {
-                                        if (item.id === evt.id) {
-                                          const newStart = item.startDate && item.startDate > val ? val : (item.startDate || val);
-                                          const newEnd = val;
-                                          return { ...item, startDate: newStart, endDate: newEnd };
-                                        }
-                                        return item;
-                                      })
-                                    }));
-                                  }}
-                                  className="bg-gray-100 hover:bg-white text-black text-xs font-black p-1 px-2 border border-black focus:outline-none cursor-pointer rounded-none font-jost"
-                                  style={{ fontFamily: "'Jost', sans-serif" }}
-                                />
+                                <span className="text-black font-black text-xs">➔</span>
+
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] font-black uppercase text-black/80">End:</span>
+                                  <input
+                                    type="date"
+                                    value={toISODateString(eDateObj)}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      if (!val) return;
+                                      setCalendarForm((prev: any) => ({
+                                        ...prev,
+                                        events: prev.events.map((item: any) => {
+                                          if (item.id === evt.id) {
+                                            const newStart = item.startDate && item.startDate > val ? val : (item.startDate || val);
+                                            const newEnd = val;
+                                            return { ...item, startDate: newStart, endDate: newEnd };
+                                          }
+                                          return item;
+                                        })
+                                      }));
+                                    }}
+                                    className="bg-gray-100 hover:bg-white text-black text-xs font-black p-1 px-2 border border-black focus:outline-none cursor-pointer rounded-none font-jost"
+                                    style={{ fontFamily: "'Jost', sans-serif" }}
+                                  />
+                                </div>
                               </div>
-                            </div>
 
                             </div>
                           </div>
                         </div>
 
-                      {/* Form Field 3: Status Ketersediaan (Segmented Control / Radio Pill Buttons Horizontal) */}
-                      <div>
-                        <label className="block text-[10px] font-black uppercase text-black/80 mb-1.5">
-                          Status:
-                        </label>
-                        <div className="grid grid-cols-3 gap-1.5 bg-gray-100 p-1 border-2 border-black rounded-none">
-                          {/* Option 1: Busy - Merah */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCalendarForm((prev: any) => ({
-                                ...prev,
-                                events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "SIBUK" } : item)
-                              }));
-                            }}
-                            className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${
-                              evt.status === "SIBUK" || evt.status === "BUSY"
-                                ? "bg-red-600 text-white border-black font-black scale-[1.02] z-10"
-                                : "bg-white text-black/80 hover:bg-red-100 border-transparent"
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-black flex-shrink-0" />
-                            <span>BUSY</span>
-                          </button>
+                        {/* Form Field 3: Status Ketersediaan (Segmented Control / Radio Pill Buttons Horizontal) */}
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-black/80 mb-1.5">
+                            Status:
+                          </label>
+                          <div className="grid grid-cols-3 gap-1.5 bg-gray-100 p-1 border-2 border-black rounded-none">
+                            {/* Option 1: Busy - Merah */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCalendarForm((prev: any) => ({
+                                  ...prev,
+                                  events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "SIBUK" } : item)
+                                }));
+                              }}
+                              className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${evt.status === "SIBUK" || evt.status === "BUSY"
+                                  ? "bg-red-600 text-white border-black font-black scale-[1.02] z-10"
+                                  : "bg-white text-black/80 hover:bg-red-100 border-transparent"
+                                }`}
+                            >
+                              <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-black flex-shrink-0" />
+                              <span>BUSY</span>
+                            </button>
 
-                          {/* Option 2: Booked - Kuning */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCalendarForm((prev: any) => ({
-                                ...prev,
-                                events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "TERISI" } : item)
-                              }));
-                            }}
-                            className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${
-                              evt.status === "TERISI" || evt.status === "BOOKED"
-                                ? "bg-[#FFCC00] text-black border-black font-black scale-[1.02] z-10"
-                                : "bg-white text-black/80 hover:bg-yellow-100 border-transparent"
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 border border-black flex-shrink-0" />
-                            <span>BOOKED</span>
-                          </button>
+                            {/* Option 2: Booked - Kuning */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCalendarForm((prev: any) => ({
+                                  ...prev,
+                                  events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "TERISI" } : item)
+                                }));
+                              }}
+                              className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${evt.status === "TERISI" || evt.status === "BOOKED"
+                                  ? "bg-[#FFCC00] text-black border-black font-black scale-[1.02] z-10"
+                                  : "bg-white text-black/80 hover:bg-yellow-100 border-transparent"
+                                }`}
+                            >
+                              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 border border-black flex-shrink-0" />
+                              <span>BOOKED</span>
+                            </button>
 
-                          {/* Option 3: Open - Hijau */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCalendarForm((prev: any) => ({
-                                ...prev,
-                                events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "TERBUKA" } : item)
-                              }));
-                            }}
-                            className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${
-                              evt.status === "TERBUKA" || evt.status === "OPEN"
-                                ? "bg-emerald-600 text-white border-black font-black scale-[1.02] z-10"
-                                : "bg-white text-black/80 hover:bg-emerald-100 border-transparent"
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-black flex-shrink-0" />
-                            <span>OPEN</span>
-                          </button>
+                            {/* Option 3: Open - Hijau */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCalendarForm((prev: any) => ({
+                                  ...prev,
+                                  events: prev.events.map((item: any) => item.id === evt.id ? { ...item, status: "TERBUKA" } : item)
+                                }));
+                              }}
+                              className={`py-2 px-2 text-xs font-black uppercase transition-all border border-black flex items-center justify-center gap-1.5 cursor-pointer rounded-none ${evt.status === "TERBUKA" || evt.status === "OPEN"
+                                  ? "bg-emerald-600 text-white border-black font-black scale-[1.02] z-10"
+                                  : "bg-white text-black/80 hover:bg-emerald-100 border-transparent"
+                                }`}
+                            >
+                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-black flex-shrink-0" />
+                              <span>OPEN</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
 
-                    </div>
-                  );
-                })
-              )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {/* ACTION BUTTONS */}
