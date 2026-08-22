@@ -3878,7 +3878,61 @@ export default function App() {
               )}
             </div>
           </div>
-        </main>
+
+          {/* MANAGE CERTIFICATES SECTION IN ADMIN PANEL */}
+            <div className="mt-12 pt-8 border-t-4 border-black">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-black uppercase flex items-center gap-2" style={{ fontFamily: "'Jost', sans-serif" }}>
+                    <Award size={22} className="text-[#FFCC00] fill-black" />
+                    <span>Manage Certificates &amp; Accreditations ({certificates.length})</span>
+                  </h3>
+                  <p className="text-xs text-gray-600">Kelola lisensi resmi, akreditasi keahlian, dan sertifikasi profesional.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddCert}
+                  className="px-4 py-2 bg-[#FFCC00] text-black border-2 border-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] cursor-pointer"
+                >
+                  + Add New Certificate
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {certificates.map((cert) => (
+                  <div key={cert.id} className="border-2 border-black p-4 bg-white flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black">
+                          {cert.category || "General"}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500">{cert.date}</span>
+                      </div>
+                      <h4 className="font-black text-sm uppercase line-clamp-2 mb-1">{cert.title}</h4>
+                      <p className="text-xs font-bold text-gray-700 mb-2">{cert.issuer}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-3 border-t border-black/20 mt-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEditCert(cert)}
+                        className="flex-1 py-1.5 border border-black text-xs font-black uppercase hover:bg-black hover:text-[#FFCC00] transition-colors text-center cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCert(cert.id, cert.title)}
+                        className="py-1.5 px-3 border border-black text-xs font-black uppercase text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </main>
       ) : selectedArticle ? (
         /* ARTICLE DETAIL VIEW MODAL / PAGE */
         <main className="max-w-[900px] mx-auto px-4 py-12">
