@@ -22,6 +22,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       return (
         <div style={{ padding: "3rem 1.5rem", fontFamily: "sans-serif", textAlign: "center", maxWidth: "600px", margin: "40px auto", border: "2px solid black", background: "#FAF8F5" }}>
           <h2 style={{ textTransform: "uppercase", fontWeight: 900 }}>Memuat Ulang Tampilan...</h2>
+          <pre style={{ background: "#eee", color: "#c00", padding: "10px", textAlign: "left", fontSize: "11px", overflow: "auto" }}>
+            {String(this.state.error?.stack || this.state.error?.message || this.state.error)}
+          </pre>
           <p style={{ color: "#555", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
             Terjadi pembaruan data sistem. Klik tombol di bawah untuk memuat ulang tampilan secara bersih.
           </p>

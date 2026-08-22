@@ -970,19 +970,12 @@ export default function App() {
     try {
       const isInitialized = localStorage.getItem("andika_projects_initialized");
       const saved = localStorage.getItem("andika_portfolio_projects");
-      if (isInitialized === "true") {
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            return parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-          }
+      if (isInitialized === "true" && saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const clean = parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+          if (clean.length > 0) return clean;
         }
-        return [];
-      } else {
-        localStorage.setItem("andika_projects_initialized", "true");
-        const initial = DEMO_PROJECTS.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-        localStorage.setItem("andika_portfolio_projects", JSON.stringify(initial));
-        return initial;
       }
     } catch (e) {
       console.error("Gagal membaca data dari localStorage", e);
@@ -2028,7 +2021,8 @@ export default function App() {
   const activeMegaMenuCatObj = MAIN_CATEGORIES.find(c => c.id === openMegaMenuId);
 
   // Filter projects based on mainCategory, subCategory, and searchQuery
-  const rawDisplayedProjects = projects.filter(p => {
+  const rawDisplayedProjects = (projects || []).filter(p => {
+    if (!p || typeof p !== "object") return false;
     // 1. Search Query Filter (if active search query exists, filter by project title/headline)
     if (searchQuery.trim() !== "") {
       const q = searchQuery.trim().toLowerCase();
