@@ -1406,11 +1406,13 @@ export default function App() {
     fetchCertificatesFromSupabase().then((supabaseCerts) => {
       if (supabaseCerts && Array.isArray(supabaseCerts) && supabaseCerts.length > 0) {
         setCertificates(supabaseCerts);
+      } else {
+        setCertificates(DEFAULT_CERTIFICATES);
       }
     });
 
     const unsubscribe = subscribeToCertificatesRealtime((realtimeCerts) => {
-      if (realtimeCerts && Array.isArray(realtimeCerts)) {
+      if (realtimeCerts && Array.isArray(realtimeCerts) && realtimeCerts.length > 0) {
         setCertificates(realtimeCerts);
       }
     });
@@ -1431,13 +1433,13 @@ export default function App() {
     setEditingCertId(null);
     setCertFormData({
       id: "cert-" + Date.now(),
-      title: "",
-      issuer: "",
+      title: "Google Data Analytics Professional Certificate",
+      issuer: "Google / Coursera",
       date: new Date().getFullYear().toString(),
-      imageUrl: "",
-      credentialUrl: "",
-      category: "ENGINEERING",
-      description: ""
+      imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&auto=format&q=80",
+      credentialUrl: "https://coursera.org/verify/professional-cert/google-data-analytics",
+      category: "CLOUD & DATA",
+      description: "Akreditasi keahlian pengolahan data, SQL, visualisasi R & Tableau, serta analisis bisnis berstandar industri."
     });
     setShowManageCertModal(true);
   };
