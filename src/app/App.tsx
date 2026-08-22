@@ -715,13 +715,20 @@ function CalendarWidget({
             <span className="uppercase tracking-widest text-[10px] text-black font-black">
               {displayMonthYear}
             </span>
-            {(realToday.getFullYear() !== viewYear || realToday.getMonth() !== viewMonth) && (
-              <button
-                onClick={handleGoToday}
-                className="text-[9px] bg-[#FFCC00] text-black px-1.5 py-0.5 font-black uppercase hover:bg-yellow-400 cursor-pointer border border-black"
-                title="Kembali ke Bulan Sekarang"
+            {realToday.getFullYear() === viewYear && realToday.getMonth() === viewMonth ? (
+              <span
+                className="text-[9px] bg-[#FFCC00] text-black px-1.5 py-0.5 font-black uppercase border border-black"
+                title="Bulan Saat Ini"
               >
                 TODAY
+              </span>
+            ) : (
+              <button
+                onClick={handleGoToday}
+                className="text-[9px] bg-black text-[#FFCC00] hover:bg-gray-800 px-1.5 py-0.5 font-black uppercase border border-black cursor-pointer transition-colors"
+                title="Kembali ke Bulan Sekarang"
+              >
+                &larr; GO TO TODAY
               </button>
             )}
           </div>
@@ -789,7 +796,7 @@ function CalendarWidget({
 
           let dateStyle = "hover:bg-black/10 text-black/80";
           if (isRealToday) {
-            dateStyle = "bg-yellow-200 font-black text-black border border-transparent";
+            dateStyle = "bg-[#FFCC00] font-black text-black border-2 border-black shadow-sm ring-1 ring-black/20";
           } else if (dayEvent) {
             if (dayEvent.status === "SIBUK" || dayEvent.status === "BUSY") {
               dateStyle = "bg-red-600 text-white font-bold border border-transparent";
@@ -813,7 +820,7 @@ function CalendarWidget({
               )}
               <div
                 className={`p-1 text-[11px] rounded-none transition-all relative flex flex-col items-center justify-center min-h-[28px] ${dateStyle}`}
-                title={dayEvent ? `Date ${day}: ${dayEvent.title} (${dayEvent.status})` : `Date ${day}`}
+                title={isRealToday ? `TODAY (${getOrdinal(day)} ${monthNamesFull[viewMonth]} ${viewYear})` : dayEvent ? `Date ${day}: ${dayEvent.title} (${dayEvent.status})` : `Date ${day}`}
               >
                 <span>{getOrdinal(day)}</span>
                 {hasConnectedNote && (
@@ -1175,7 +1182,7 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === "object") {
-          if (!parsed.monthYear || parsed.monthYear.toUpperCase().includes("JULY")) {
+          if (!parsed.monthYear || parsed.monthYear !== currentMonthYearStr) {
             parsed.monthYear = currentMonthYearStr;
             parsed.events = DEFAULT_CALENDAR_EVENTS;
           }
