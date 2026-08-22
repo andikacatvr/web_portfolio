@@ -64,7 +64,8 @@ import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
 import {
   fetchProjectsFromSupabase,
   upsertProjectToSupabase,
-  deleteProjectFromSupabase
+  deleteProjectFromSupabase,
+  subscribeToProjectsRealtime
 } from "../lib/supabase";
 
 const getOrdinal = (n: number) => {
@@ -987,21 +988,31 @@ export default function App() {
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Load from Supabase Database (Real-time global sync across all visitors & browsers)
+  // Load & Realtime Sync from Supabase Database across all devices live
   useEffect(() => {
     fetchProjectsFromSupabase()
       .then((supabaseProjects) => {
         const deletedIds = getDeletedProjectIds();
-        if (supabaseProjects && Array.isArray(supabaseProjects) && supabaseProjects.length > 0) {
+        if (supabaseProjects && Array.isArray(supabaseProjects)) {
           const cleanProjects = supabaseProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-          if (cleanProjects.length > 0) {
-            setProjects(cleanProjects);
-          }
+          setProjects(cleanProjects);
         }
       })
       .catch((err) => {
         console.error("Supabase fetch promise error:", err);
       });
+
+    const unsubscribe = subscribeToProjectsRealtime((realtimeProjects) => {
+      const deletedIds = getDeletedProjectIds();
+      if (realtimeProjects && Array.isArray(realtimeProjects)) {
+        const cleanProjects = realtimeProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+        setProjects(cleanProjects);
+      }
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // Sync projects dynamically to IndexedDB & localStorage

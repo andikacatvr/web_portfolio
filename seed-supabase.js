@@ -87,8 +87,8 @@ const DEMO_PROJECTS = [
 ];
 
 async function seed() {
-  const { data, error } = await supabase.from("projects").upsert(DEMO_PROJECTS);
-  console.log("Seed data:", data);
+  const { data, error } = await supabase.from("projects").upsert(DEMO_PROJECTS).select();
+  console.log("Seeded count:", data ? data.length : 0);
   console.log("Seed error:", error);
 }
 

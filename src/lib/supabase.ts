@@ -130,3 +130,31 @@ export const deleteProjectFromSupabase = async (id: string) => {
     console.error("Supabase delete exception:", e);
   }
 };
+
+export const subscribeToProjectsRealtime = (onUpdate: (projects: any[]) => void) => {
+  const client = getSupabase();
+  if (!client) return () => {};
+
+  try {
+    const channel = client
+      .channel("public:projects:realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects" },
+        async () => {
+          const updated = await fetchProjectsFromSupabase();
+          if (updated) {
+            onUpdate(updated);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  } catch (e) {
+    console.error("Realtime subscription exception:", e);
+    return () => {};
+  }
+};
