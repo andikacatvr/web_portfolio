@@ -966,23 +966,25 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>("Beranda");
   const [activeSubCategory, setActiveSubCategory] = useState<string>("SEMUA");
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
-  // Portfolio Projects State with localStorage & IndexedDB Persistence (Permanent Deletion Supported)
+  // Portfolio Projects State with localStorage & Supabase Sync
   const [projects, setProjects] = useState<any[]>(() => {
     const deletedIds = getDeletedProjectIds();
     try {
       const isInitialized = localStorage.getItem("andika_projects_initialized");
       const saved = localStorage.getItem("andika_portfolio_projects");
-      if (isInitialized === "true" && saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const clean = parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-          if (clean.length > 0) return clean;
+      if (isInitialized === "true") {
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+          }
         }
+        return [];
       }
     } catch (e) {
       console.error("Gagal membaca data dari localStorage", e);
     }
-    return DEMO_PROJECTS.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+    return [];
   });
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
   const [savedToast, setSavedToast] = useState<string | null>(null);
