@@ -59,8 +59,12 @@ import stickmanImg from "../imports/Untitled_design__13_.png";
 import nycSkylineImg from "../../gambar/nyc_skyline.png";
 import headerLogoImg from "../../gambar/andika's+webportfolio.svg";
 import servicesSymbolImg from "../../gambar/services_symbol.png";
-import ahelImg from "../../gambar/ahel.svg";
 import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
+import {
+  fetchProjectsFromSupabase,
+  upsertProjectToSupabase,
+  deleteProjectFromSupabase
+} from "../lib/supabase";
 
 const getOrdinal = (n: number) => {
   const s = ["ᵗʰ", "ˢᵗ", "ⁿᵈ", "ʳᵈ"];
@@ -989,13 +993,20 @@ export default function App() {
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Load from IndexedDB (Supports 500MB+ large files)
+  // Load from Supabase Database (Real-time global sync across all visitors & browsers)
   useEffect(() => {
-    getProjectsFromIDB().then((saved) => {
+    fetchProjectsFromSupabase().then((supabaseProjects) => {
       const deletedIds = getDeletedProjectIds();
-      if (Array.isArray(saved)) {
-        const cleanSaved = saved.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
-        setProjects(cleanSaved);
+      if (supabaseProjects && Array.isArray(supabaseProjects) && supabaseProjects.length > 0) {
+        const cleanProjects = supabaseProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+        setProjects(cleanProjects);
+      } else {
+        getProjectsFromIDB().then((saved) => {
+          if (Array.isArray(saved) && saved.length > 0) {
+            const cleanSaved = saved.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+            setProjects(cleanSaved);
+          }
+        });
       }
     });
   }, []);
@@ -1864,10 +1875,11 @@ export default function App() {
 
     if (editingProjectId) {
       // Edit mode: Update existing project
+      let updatedObj: any = null;
       setProjects((prevProjects) =>
         prevProjects.map((p) => {
           if (p.id === editingProjectId) {
-            return {
+            updatedObj = {
               ...p,
               mainCategory: formData.mainCategory,
               subCategory: formData.subCategory,
@@ -1883,10 +1895,12 @@ export default function App() {
               caption: formData.title + " — Karya " + formData.subCategory + " oleh Andika Catur Ariantono",
               content: contentParagraphs
             };
+            return updatedObj;
           }
           return p;
         })
       );
+      if (updatedObj) upsertProjectToSupabase(updatedObj);
       setFormToast(`Karya "${formData.title}" berhasil diperbarui!`);
       setEditingProjectId(null);
     } else {
@@ -1913,6 +1927,7 @@ export default function App() {
       };
 
       setProjects((prev) => [newProj, ...prev]);
+      upsertProjectToSupabase(newProj);
       setFormToast(`Karya "${formData.title}" berhasil ditambahkan!`);
     }
 
@@ -1966,13 +1981,14 @@ export default function App() {
       localStorage.setItem("andika_portfolio_projects", JSON.stringify(updatedProjects));
     } catch (e) {}
     saveProjectsToIDB(updatedProjects);
+    deleteProjectFromSupabase(id);
 
     if (selectedArticle?.id === id) {
       setSelectedArticle(null);
     }
     setDeletingId(null);
     const shortTitle = title ? `"${title.slice(0, 25)}..."` : "Karya";
-    setSavedToast(`${shortTitle} berhasil dihapus secara permanen!`);
+    setSavedToast(`${shortTitle} berhasil dihapus secara permanen dari Supabase!`);
     setTimeout(() => setSavedToast(null), 3000);
   };
 
@@ -1991,13 +2007,15 @@ export default function App() {
       prevProjects.map((p) => {
         if (p.id === id) {
           const nextStatus = !p.isFeatured;
+          const updated = { ...p, isFeatured: nextStatus };
+          upsertProjectToSupabase(updated);
           setSavedToast(
             nextStatus
               ? `"${p.headline.slice(0, 20)}..." dipilih untuk Beranda! (${currentFeaturedCount + 1}/6)`
               : `"${p.headline.slice(0, 20)}..." dihapus dari Pilihan Beranda.`
           );
           setTimeout(() => setSavedToast(null), 3000);
-          return { ...p, isFeatured: nextStatus };
+          return updated;
         }
         return p;
       })
