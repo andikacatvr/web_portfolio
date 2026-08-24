@@ -61,7 +61,6 @@ import stickmanImg from "../imports/Untitled_design__13_.png";
 import nycSkylineImg from "../../gambar/nyc_skyline.png";
 import headerLogoImg from "../../gambar/andika's+webportfolio.svg";
 import servicesSymbolImg from "../../gambar/services_symbol.png";
-import ahelImg from "../../gambar/ahel.svg";
 import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
 import {
   fetchProjectsFromSupabase,
@@ -4351,14 +4350,7 @@ export default function App() {
                         </div>
                       )}
 
-                      {/* Decorative image below Main Summary */}
-                      <div className="mt-14 mb-6 flex justify-center items-center">
-                        <img
-                          src={ahelImg}
-                          alt="Illustration"
-                          className="max-h-32 sm:max-h-40 md:max-h-48 w-auto max-w-full object-contain hover:scale-105 transition-transform duration-300 select-none drop-shadow-sm"
-                        />
-                      </div>
+
                     </>
                   )}
 
