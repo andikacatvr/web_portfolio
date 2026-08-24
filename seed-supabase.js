@@ -86,10 +86,44 @@ const DEMO_PROJECTS = [
   }
 ];
 
+const DEMO_CERTIFICATES = [
+  {
+    id: "cert-1",
+    title: "Google UX Design Professional Certificate",
+    issuer: "Google / Coursera",
+    date: "2026",
+    image_url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=500&fit=crop&auto=format&q=80",
+    category: "UI/UX DESIGN",
+    description: "Sertifikasi profesional merancang alur pengguna, wireframing, riset UX, dan desain antarmuka berbasis Figma."
+  },
+  {
+    id: "cert-2",
+    title: "Meta Front-End Developer Professional Certificate",
+    issuer: "Meta / Coursera",
+    date: "2025",
+    image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format&q=80",
+    category: "ENGINEERING",
+    description: "Akreditasi tingkat lanjut untuk pengembangan aplikasi web modern dengan React, JavaScript ES6+, dan Tailwind CSS."
+  },
+  {
+    id: "cert-3",
+    title: "AWS Certified Cloud Practitioner",
+    issuer: "Amazon Web Services",
+    date: "2026",
+    image_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop&auto=format&q=80",
+    category: "CLOUD & DATA",
+    description: "Sertifikasi pemahaman arsitektur cloud, keamanan server, dan manajemen infrastruktur web di AWS."
+  }
+];
+
 async function seed() {
-  const { data, error } = await supabase.from("projects").upsert(DEMO_PROJECTS).select();
-  console.log("Seeded count:", data ? data.length : 0);
-  console.log("Seed error:", error);
+  const { data: projData, error: projErr } = await supabase.from("projects").upsert(DEMO_PROJECTS).select();
+  console.log("Seeded projects count:", projData ? projData.length : 0);
+  if (projErr) console.error("Projects seed error:", projErr);
+
+  const { data: certData, error: certErr } = await supabase.from("certificates").upsert(DEMO_CERTIFICATES).select();
+  console.log("Seeded certificates count:", certData ? certData.length : 0);
+  if (certErr) console.error("Certificates seed error:", certErr);
 }
 
 seed();
