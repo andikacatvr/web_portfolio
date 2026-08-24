@@ -545,15 +545,15 @@ const DEMO_PROJECTS = [
     ]
   },
   {
-    id: "proj-4",
-    mainCategory: "MEDIA & PRODUCTION",
+    id: "proj-6",
+    mainCategory: "Visuals",
     subCategory: "Editing & Post-Production",
     headline: "Cinematic Reel 2025: Dokumenter Eksplorasi Visual",
     deck: "Kumpulan sinematografi pendek lanskap alam Indonesia dan dokumentasi kehidupan urban 4K.",
     author: "Andika Catur Ariantono",
     date: "2025",
     linkUrl: "https://youtube.com/watch?v=demo-reel",
-    image: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=500&fit=crop&auto=format&q=80",
+    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&h=500&fit=crop&auto=format&q=80",
     tags: ["Videografi", "Color Grading", "DaVinci Resolve"],
     bgColor: "bg-[#E3E3E3]",
     textColor: "text-black",
@@ -1740,7 +1740,7 @@ export default function App() {
     isFeatured: boolean;
   }>({
     title: "",
-    mainCategory: "ENGINEERING & DATA",
+    mainCategory: "Technology",
     subCategory: "Web Development",
     imageUrl: "",
     images: [],
@@ -1913,7 +1913,7 @@ export default function App() {
     setEditingProjectId(null);
     setFormData({
       title: "",
-      mainCategory: "ENGINEERING & DATA",
+      mainCategory: "Technology",
       subCategory: "Web Development",
       imageUrl: "",
       images: [],
@@ -2232,7 +2232,7 @@ export default function App() {
 
     setFormData({
       title: proj.headline || "",
-      mainCategory: proj.mainCategory || "ENGINEERING & DATA",
+      mainCategory: proj.mainCategory || "Technology",
       subCategory: proj.subCategory || "Web Development",
       imageUrl: proj.image || existingImages[0] || "",
       images: existingImages,
@@ -4071,7 +4071,7 @@ export default function App() {
             <div className="border-b-[3px] border-black pb-4 mb-8">
               <div className="flex items-center gap-2 mb-3">
                 <span className="bg-black text-[#FFCC00] text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 inline-block rounded-none">
-                  {selectedArticle.mainCategory === "RINGKASAN UTAMA" ? "MAIN SUMMARY" : (selectedArticle.mainCategory || "ENGINEERING & DATA")}
+                  {selectedArticle.mainCategory === "RINGKASAN UTAMA" ? "MAIN SUMMARY" : (selectedArticle.mainCategory || "Technology")}
                 </span>
                 {selectedArticle.subCategory && (
                   <span className="bg-gray-200 text-black border border-black text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 inline-block rounded-none">
