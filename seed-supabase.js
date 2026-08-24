@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const DEMO_PROJECTS = [
   {
     id: "proj-1",
-    main_category: "ENGINEERING & DATA",
+    main_category: "Technology",
     sub_category: "E-Commerce Architecture",
     headline: "Platform E-Commerce Minimalis dengan Arsitektur Headless",
     deck: "Toko online modern berkecepatan tinggi dengan integrasi sistem pembayaran, manajemen inventaris, dan pencarian cepat.",
@@ -21,7 +21,7 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-6",
-    main_category: "ENGINEERING & DATA",
+    main_category: "Technology",
     sub_category: "Analytics Dashboards",
     headline: "Dashboard Analitik Real-Time & Visualisasi Data E-Commerce",
     deck: "Olah data transaksi e-commerce, grafik tren penjualan, & dashboard performa interaktif berbasis Recharts dan Python.",
@@ -34,7 +34,7 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-3",
-    main_category: "CREATIVE & ART",
+    main_category: "Design",
     sub_category: "Branding & Identity",
     headline: "Rebranding 'Kopi Senja': Estetika Klasik di Era Digital",
     deck: "Perancangan ulang identitas visual, kemasan produk, dan aplikasi pemesanan digital untuk kedai kopi lokal.",
@@ -47,7 +47,7 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-5",
-    main_category: "CREATIVE & ART",
+    main_category: "Design",
     sub_category: "Comic Strips & Storytelling",
     headline: "Komik Strip 'Kilas Senja': Seri Cerita Humor Digital",
     deck: "Kumpulan cerita komik pendek 4-panel bertema kehidupan harian developer dan kehidupan perkotaan.",
@@ -60,7 +60,7 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-2",
-    main_category: "MEDIA & PRODUCTION",
+    main_category: "Visuals",
     sub_category: "Urban & Architecture",
     headline: "Seri 'Urban Silence': Dokumentasi Arsitektur Kota",
     deck: "Eksplorasi visual lanskap ibu kota sebelum fajar, menangkap interaksi cahaya dan struktur beton dalam monokrom.",
@@ -73,14 +73,14 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-4",
-    main_category: "MEDIA & PRODUCTION",
+    main_category: "Visuals",
     sub_category: "Editing & Post-Production",
     headline: "Cinematic Reel 2025: Dokumenter Eksplorasi Visual",
     deck: "Kumpulan sinematografi pendek lanskap alam Indonesia dan dokumentasi kehidupan urban 4K.",
     author: "Andika Catur Ariantono",
     date: "2025",
     link_url: "https://youtube.com/watch?v=demo-reel",
-    image: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=500&fit=crop&auto=format&q=80",
+    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&h=500&fit=crop&auto=format&q=80",
     tags: ["Videografi", "Color Grading", "DaVinci Resolve"],
     is_featured: true
   }

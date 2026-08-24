@@ -60,9 +60,18 @@ export const fetchProjectsFromSupabase = async (): Promise<any[] | null> => {
         }
       }
 
+      const formatCat = (cat: string): string => {
+        if (!cat) return "Technology";
+        const u = cat.trim().toUpperCase();
+        if (u === "ENGINEERING & DATA" || u === "TECH" || u === "TECHNOLOGY") return "Technology";
+        if (u === "CREATIVE & ART" || u === "VISUAL ARTS" || u === "DESIGN") return "Design";
+        if (u === "MEDIA & PRODUCTION" || u === "VISUALS") return "Visuals";
+        return cat;
+      };
+
       return {
         id: String(item.id || "proj-" + Math.random()),
-        mainCategory: item.main_category || "ENGINEERING & DATA",
+        mainCategory: formatCat(item.main_category || "Technology"),
         subCategory: item.sub_category || "Web Development",
         headline: item.headline || "Untitled Project",
         deck: item.deck || "",

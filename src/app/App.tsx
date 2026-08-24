@@ -84,6 +84,15 @@ const getOrdinal = (n: number) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
+const formatCategoryBadge = (cat: string): string => {
+  if (!cat) return "Technology";
+  const u = cat.trim().toUpperCase();
+  if (u === "ENGINEERING & DATA" || u === "TECH" || u === "TECHNOLOGY") return "Technology";
+  if (u === "CREATIVE & ART" || u === "VISUAL ARTS" || u === "DESIGN") return "Design";
+  if (u === "MEDIA & PRODUCTION" || u === "VISUALS") return "Visuals";
+  return cat;
+};
+
 const MONTH_NAMES_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTH_NAMES_FULL = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
@@ -3927,8 +3936,8 @@ export default function App() {
                       <img src={p.image} alt={p.headline} className="w-16 h-16 object-cover rounded-none border border-black flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[9px] font-black uppercase bg-black text-[#FFCC00] px-1.5 py-0.5 rounded-none">
-                            {p.mainCategory}
+                          <span className="text-[9px] font-black bg-black text-[#FFCC00] px-1.5 py-0.5 rounded-none">
+                            {formatCategoryBadge(p.mainCategory)}
                           </span>
                           <span className="text-[9px] font-bold uppercase bg-gray-200 border border-black/30 px-1 py-0.5 rounded-none">
                             {p.subCategory}
@@ -4550,8 +4559,8 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                        <span className={`text-[9px] font-black tracking-widest uppercase ${proj.badgeBg || "bg-black text-white"} px-2.5 py-1 inline-block rounded-none`}>
-                          {proj.mainCategory}
+                        <span className={`text-[9px] font-black tracking-widest ${proj.badgeBg || "bg-black text-white"} px-2.5 py-1 inline-block rounded-none`}>
+                          {formatCategoryBadge(proj.mainCategory)}
                         </span>
                         <span className="text-[9px] font-black tracking-wider uppercase bg-white text-black px-2 py-0.5 inline-block rounded-none border border-black">
                           {proj.subCategory}
