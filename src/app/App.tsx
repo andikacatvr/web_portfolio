@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Search,
   Menu,
@@ -17,6 +17,7 @@ import {
   Code,
   Layers,
   Sparkles,
+  Award,
   ExternalLink,
   Briefcase,
   PlusCircle,
@@ -36,6 +37,7 @@ import {
   Brush,
   Film,
   FolderGit2,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   ChevronUp,
@@ -152,7 +154,7 @@ export interface MainCategory {
 export const MAIN_CATEGORIES: MainCategory[] = [
   {
     id: "engineering-data",
-    title: "ENGINEERING & DATA",
+    title: "Technology",
     subtitle: "Technical & Analytical Solutions",
     icon: Terminal,
     subcategories: [
@@ -203,7 +205,7 @@ export const MAIN_CATEGORIES: MainCategory[] = [
   },
   {
     id: "creative-art",
-    title: "CREATIVE & ART",
+    title: "Design",
     subtitle: "Art & Visual Design",
     icon: Brush,
     subcategories: [
@@ -254,7 +256,7 @@ export const MAIN_CATEGORIES: MainCategory[] = [
   },
   {
     id: "media-production",
-    title: "MEDIA & PRODUCTION",
+    title: "Visuals",
     subtitle: "Audio-Visual & Production",
     icon: Film,
     subcategories: [
@@ -422,7 +424,7 @@ const DEFAULT_CERTIFICATES: CertificateItem[] = [
 const DEMO_PROJECTS = [
   {
     id: "proj-1",
-    mainCategory: "ENGINEERING & DATA",
+    mainCategory: "Technology",
     subCategory: "E-Commerce Architecture",
     headline: "Platform E-Commerce Minimalis dengan Arsitektur Headless",
     deck: "Toko online modern berkecepatan tinggi dengan integrasi sistem pembayaran, manajemen inventaris, dan pencarian cepat.",
@@ -443,8 +445,8 @@ const DEMO_PROJECTS = [
     ]
   },
   {
-    id: "proj-6",
-    mainCategory: "ENGINEERING & DATA",
+    id: "proj-2",
+    mainCategory: "Technology",
     subCategory: "Analytics Dashboards",
     headline: "Dashboard Analitik Real-Time & Visualisasi Data E-Commerce",
     deck: "Olah data transaksi e-commerce, grafik tren penjualan, & dashboard performa interaktif berbasis Recharts dan Python.",
@@ -466,7 +468,7 @@ const DEMO_PROJECTS = [
   },
   {
     id: "proj-3",
-    mainCategory: "CREATIVE & ART",
+    mainCategory: "Design",
     subCategory: "Branding & Identity",
     headline: "Rebranding 'Kopi Senja': Estetika Klasik di Era Digital",
     deck: "Perancangan ulang identitas visual, kemasan produk, dan aplikasi pemesanan digital untuk kedai kopi lokal.",
@@ -487,8 +489,8 @@ const DEMO_PROJECTS = [
     ]
   },
   {
-    id: "proj-5",
-    mainCategory: "CREATIVE & ART",
+    id: "proj-4",
+    mainCategory: "Design",
     subCategory: "Comic Strips & Storytelling",
     headline: "Komik Strip 'Kilas Senja': Seri Cerita Humor Digital",
     deck: "Kumpulan cerita komik pendek 4-panel bertema kehidupan harian developer dan kehidupan perkotaan.",
@@ -509,8 +511,8 @@ const DEMO_PROJECTS = [
     ]
   },
   {
-    id: "proj-2",
-    mainCategory: "MEDIA & PRODUCTION",
+    id: "proj-5",
+    mainCategory: "Visuals",
     subCategory: "Urban & Architecture",
     headline: "Seri 'Urban Silence': Dokumentasi Arsitektur Kota",
     deck: "Eksplorasi visual lanskap ibu kota sebelum fajar, menangkap interaksi cahaya dan struktur beton dalam monokrom.",
@@ -1401,6 +1403,65 @@ export default function App() {
     description: ""
   });
 
+  // Certificates Horizontal Scroll Ref & Wheel Listener (Callback Ref for guaranteed mount attachment)
+  const certScrollRef = useRef<HTMLDivElement | null>(null);
+  const certWheelCleanupRef = useRef<(() => void) | null>(null);
+  const [isCertDragging, setIsCertDragging] = useState(false);
+  const [certStartX, setCertStartX] = useState(0);
+  const [certScrollLeft, setCertScrollLeft] = useState(0);
+
+  const setCertScrollRef = useCallback((node: HTMLDivElement | null) => {
+    if (certWheelCleanupRef.current) {
+      certWheelCleanupRef.current();
+      certWheelCleanupRef.current = null;
+    }
+
+    certScrollRef.current = node;
+
+    if (node) {
+      const handleWheel = (e: WheelEvent) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          node.scrollLeft += e.deltaY;
+        }
+      };
+
+      node.addEventListener("wheel", handleWheel, { passive: false });
+      certWheelCleanupRef.current = () => {
+        node.removeEventListener("wheel", handleWheel);
+      };
+    }
+  }, []);
+
+  const scrollCertificates = (direction: "left" | "right") => {
+    if (certScrollRef.current) {
+      const scrollAmount = 360;
+      certScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  const handleCertMouseDown = (e: React.MouseEvent) => {
+    if (!certScrollRef.current) return;
+    setIsCertDragging(true);
+    setCertStartX(e.pageX - certScrollRef.current.offsetLeft);
+    setCertScrollLeft(certScrollRef.current.scrollLeft);
+  };
+
+  const handleCertMouseLeaveOrUp = () => {
+    setIsCertDragging(false);
+  };
+
+  const handleCertMouseMove = (e: React.MouseEvent) => {
+    if (!isCertDragging || !certScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - certScrollRef.current.offsetLeft;
+    const walk = (x - certStartX) * 1.5;
+    certScrollRef.current.scrollLeft = certScrollLeft - walk;
+  };
+
   // Load Certificates from Supabase & Subscribe to Realtime
   useEffect(() => {
     fetchCertificatesFromSupabase().then((supabaseCerts) => {
@@ -1958,6 +2019,21 @@ export default function App() {
     e.target.value = "";
   };
 
+  const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    try {
+      const compressedString = await compressImageFile(files[0], 1200, 0.8);
+      setCertFormData((prev) => ({
+        ...prev,
+        imageUrl: compressedString
+      }));
+    } catch (err) {
+      console.error("Gagal mengompres gambar sertifikat:", err);
+    }
+    e.target.value = "";
+  };
+
   const handleRemoveImage = (indexToRemove: number) => {
     setFormData((prev) => {
       const updated = (prev.images || []).filter((_, idx) => idx !== indexToRemove);
@@ -2197,7 +2273,9 @@ export default function App() {
       return true;
     }
     const matchMain = p.mainCategory === activeCategory ||
-      (activeCategory === "CREATIVE & ART" && (p.mainCategory === "VISUAL ARTS" || p.mainCategory === "CREATIVE & ART"));
+      ((activeCategory === "Technology" || activeCategory === "TECHNOLOGY" || activeCategory === "TECH" || activeCategory === "ENGINEERING & DATA") && (p.mainCategory === "ENGINEERING & DATA" || p.mainCategory === "TECH" || p.mainCategory === "TECHNOLOGY" || p.mainCategory === "Technology")) ||
+      ((activeCategory === "Design" || activeCategory === "DESIGN" || activeCategory === "CREATIVE & ART") && (p.mainCategory === "VISUAL ARTS" || p.mainCategory === "CREATIVE & ART" || p.mainCategory === "DESIGN" || p.mainCategory === "Design")) ||
+      ((activeCategory === "Visuals" || activeCategory === "VISUALS" || activeCategory === "MEDIA & PRODUCTION") && (p.mainCategory === "MEDIA & PRODUCTION" || p.mainCategory === "VISUALS" || p.mainCategory === "Visuals"));
     if (!matchMain) return false;
 
     if (activeSubCategory === "SEMUA") return true;
@@ -3154,10 +3232,10 @@ export default function App() {
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
                       }`}
                   >
-                    <ShieldCheck size={13} /> MANAGE PORTFOLIO (ADMIN)
+                    <ShieldCheck size={13} /> Manage
                   </button>
                 )}
 
@@ -3175,7 +3253,7 @@ export default function App() {
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
                         }}
-                        className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-all whitespace-nowrap flex items-center justify-between lg:justify-start gap-1.5 border-b lg:border-b-0 border-black/20 ${isMegaOpen
+                        className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-all whitespace-nowrap flex items-center justify-between lg:justify-start gap-1.5 border-b lg:border-b-0 border-black/20 ${isMegaOpen
                           ? "bg-[#F2F2F2] text-black font-black underline underline-offset-4 decoration-2 shadow-sm"
                           : isActive
                             ? "bg-[#F2F2F2] text-black font-black shadow-sm"
@@ -3464,7 +3542,7 @@ export default function App() {
         <main className="max-w-[1100px] mx-auto px-4 py-10 font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
           <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-8">
             <div>
-              <span className="bg-black text-[#FFCC00] text-[10px] font-black uppercase px-2.5 py-1 rounded-none inline-block mb-2">
+              <span className="bg-[#E5E5E5] text-black text-[10px] font-black uppercase px-2.5 py-1 rounded-none inline-block mb-2">
                 PORTFOLIO ADMIN MODE (VERIFIED {activeAdminUser ? `• USER: ${activeAdminUser}` : ""})
               </span>
               <h2 className="text-2xl md:text-4xl font-black uppercase font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
@@ -3474,42 +3552,42 @@ export default function App() {
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleOpenHeroModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Main Summary & Profile' Info"
               >
                 <Sparkles size={14} /> MAIN SUMMARY
               </button>
               <button
                 onClick={handleOpenDevProfileModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'About Developer' Info"
               >
                 <Edit size={14} /> DEV PROFILE
               </button>
               <button
                 onClick={handleOpenCalendarModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Availability Schedule' Info"
               >
                 <CalendarIcon size={14} /> CALENDAR SCHEDULE
               </button>
               <button
                 onClick={handleOpenWritingsModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Notes' Info"
               >
                 <BookOpen size={14} /> NOTES
               </button>
               <button
                 onClick={handleOpenServicesModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Expertise' Info"
               >
                 <Briefcase size={14} /> EXPERTISE
               </button>
               <button
                 onClick={handleOpenToolsTechModal}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Tools & Tech per Sector' Info"
               >
                 <Wrench size={14} /> TOOLS &amp; TECH
@@ -3519,14 +3597,14 @@ export default function App() {
                   setChangeCredsForm(adminCreds);
                   setShowChangeCredsModal(true);
                 }}
-                className="bg-black text-[#FFCC00] border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-800 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Change Admin Nickname, Password & Security Answer"
               >
                 <KeyRound size={14} /> ACCOUNT / PASS
               </button>
               <button
                 onClick={() => handleSelectMainCategory("Beranda")}
-                className="border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-black hover:text-white transition-colors rounded-none flex items-center gap-2 cursor-pointer"
+                className="bg-[#FFCC00] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-black hover:text-[#FFCC00] transition-colors rounded-none flex items-center gap-2 cursor-pointer"
               >
                 <ArrowLeft size={14} /> View Home Page
               </button>
@@ -3542,9 +3620,9 @@ export default function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Form Input Side */}
-            <div className="lg:col-span-7 bg-gray-50 border-2 border-black p-6 rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="lg:col-span-7 bg-gray-50 border-2 border-black p-6 rounded-none">
               <div className="flex items-center justify-between border-b border-black pb-2 mb-4">
-                <h3 className="text-lg font-black uppercase flex items-center gap-2 font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
+                <h3 className="text-lg font-black flex items-center gap-2 font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
                   {editingProjectId ? <Edit size={18} /> : <PlusCircle size={18} />}
                   {editingProjectId ? "Edit Project" : "Add New Project"}
                 </h3>
@@ -3783,7 +3861,7 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className="w-full bg-black text-[#FFCC00] text-sm font-black uppercase py-3.5 px-4 tracking-widest hover:bg-black/80 transition-colors rounded-none border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                  className="w-full bg-black text-[#FFCC00] text-sm font-black uppercase py-3.5 px-4 tracking-widest hover:bg-black/80 transition-colors rounded-none border-2 border-black"
                 >
                   {editingProjectId ? "SAVE PROJECT CHANGES" : "Save & Publish Project"}
                 </button>
@@ -3793,7 +3871,7 @@ export default function App() {
             {/* List Existing Projects Side */}
             <div className="lg:col-span-5 space-y-4">
               <div className="border-b border-black pb-2 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-lg font-black uppercase font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
+                <h3 className="text-lg font-black font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
                   Project List ({projects.length})
                 </h3>
               </div>
@@ -3883,8 +3961,7 @@ export default function App() {
             <div className="mt-12 pt-8 border-t-4 border-black">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
-                  <h3 className="text-xl font-black uppercase flex items-center gap-2" style={{ fontFamily: "'Jost', sans-serif" }}>
-                    <Award size={22} className="text-[#FFCC00] fill-black" />
+                  <h3 className="text-xl font-black uppercase" style={{ fontFamily: "'Jost', sans-serif" }}>
                     <span>Manage Certificates &amp; Accreditations ({certificates.length})</span>
                   </h3>
                   <p className="text-xs text-gray-600">Kelola lisensi resmi, akreditasi keahlian, dan sertifikasi profesional.</p>
@@ -3892,9 +3969,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleOpenAddCert}
-                  className="px-4 py-2 bg-[#FFCC00] text-black border-2 border-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] cursor-pointer"
+                  className="px-4 py-2 bg-[#FFCC00] text-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
                 >
-                  + Add New Certificate
+                  Add New Certificate
                 </button>
               </div>
 
@@ -4528,15 +4605,12 @@ export default function App() {
             </div>
           </section>
 
-          {/* CERTIFICATES & CREDENTIALS SECTION */}
+          {/* CERTIFICATES SECTION */}
           <section className="mb-16 border-b-2 border-black pb-16">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest bg-black text-[#FFCC00] px-2.5 py-1 inline-block mb-2">
-                  ACCREDITATIONS & LICENSES
-                </span>
                 <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
-                  CERTIFICATES & CREDENTIALS
+                  CERTIFICATES
                 </h2>
                 <p className="text-xs text-gray-600 font-serif mt-1">
                   Dokumentasi lisensi resmi, akreditasi profesional, dan sertifikasi keahlian terverifikasi.
@@ -4547,88 +4621,97 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleOpenAddCert}
-                  className="px-4 py-2 bg-[#FFCC00] text-black border-2 border-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#FFCC00] text-black font-black text-xs uppercase hover:bg-black hover:text-[#FFCC00] transition-colors rounded-none cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>+ ADD CERTIFICATE (ADMIN)</span>
+                  <span>+ ADD</span>
                 </button>
               )}
             </div>
 
-            {/* Certificates Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {certificates.map((cert) => (
-                <div
-                  key={cert.id}
-                  className="group border-2 border-black bg-white p-5 flex flex-col justify-between hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-                >
-                  <div>
-                    {/* Cover / Certificate Preview Image */}
-                    <div className="w-full h-44 bg-gray-200 border-2 border-black overflow-hidden mb-4 relative">
-                      {cert.imageUrl ? (
-                        <img
-                          src={cert.imageUrl}
-                          alt={cert.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#E3E3E3] text-black/40 font-black text-xs">
-                          NO CERTIFICATE IMAGE
+            {/* Certificates Horizontal Scrollable Area */}
+            <div className="relative py-2">
+              <div
+                ref={setCertScrollRef}
+                onMouseDown={handleCertMouseDown}
+                onMouseLeave={handleCertMouseLeaveOrUp}
+                onMouseUp={handleCertMouseLeaveOrUp}
+                onMouseMove={handleCertMouseMove}
+                className={`flex flex-nowrap overflow-x-auto gap-6 pb-4 pt-2 select-none scroll-smooth custom-scrollbar ${
+                  isCertDragging ? "cursor-grabbing" : "cursor-grab"
+                }`}
+              >
+                {certificates.map((cert) => (
+                  <div
+                    key={cert.id}
+                    className="group bg-[#E5E5E5] p-5 flex flex-col justify-between transition-all duration-200 w-[300px] sm:w-[340px] md:w-[360px] shrink-0 flex-none"
+                  >
+                    <div>
+                      {/* Cover / Certificate Preview Image */}
+                      <div className="w-full h-44 bg-gray-200 border-2 border-black overflow-hidden mb-4 relative">
+                        {cert.imageUrl ? (
+                          <img
+                            src={cert.imageUrl}
+                            alt={cert.title}
+                            draggable={false}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-[#E3E3E3] text-black/40 font-black text-xs select-none">
+                            NO CERTIFICATE IMAGE
+                          </div>
+                        )}
+                        <span className="absolute top-2 left-2 bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black select-none">
+                          {cert.category || "General"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mb-2 select-none">
+                        <span className="text-[10px] font-black uppercase bg-[#FFCC00] text-black px-2 py-0.5 border border-black">
+                          {cert.issuer}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500">
+                          {cert.date}
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-black uppercase line-clamp-2 mb-4 select-none" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+                        {cert.title}
+                      </h3>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-3 border-t border-black/20">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCertModal(cert)}
+                        className="flex-1 py-2 bg-black text-white hover:bg-[#FFCC00] hover:text-black border border-black text-xs font-black uppercase transition-colors text-center cursor-pointer select-none"
+                      >
+                        VIEW
+                      </button>
+
+                      {isAdminLoggedIn && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleEditCert(cert)}
+                            className="p-2 border border-black hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
+                            title="Edit Certificate"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCert(cert.id, cert.title)}
+                            className="p-2 border border-black text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                            title="Delete Certificate"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       )}
-                      <span className="absolute top-2 left-2 bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black">
-                        {cert.category || "General"}
-                      </span>
                     </div>
-
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-[10px] font-black uppercase bg-[#FFCC00] text-black px-2 py-0.5 border border-black">
-                        {cert.issuer}
-                      </span>
-                      <span className="text-[10px] font-bold text-gray-500">
-                        {cert.date}
-                      </span>
-                    </div>
-
-                    <h3 className="text-base font-black uppercase line-clamp-2 mb-2" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
-                      {cert.title}
-                    </h3>
-                    <p className="text-xs text-gray-600 line-clamp-3 mb-4 font-serif leading-relaxed">
-                      {cert.description || "Terverifikasi dan diakui secara resmi."}
-                    </p>
                   </div>
-
-                  <div className="flex items-center gap-2 pt-3 border-t border-black/20">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCertModal(cert)}
-                      className="flex-1 py-2 bg-black text-white hover:bg-[#FFCC00] hover:text-black border border-black text-xs font-black uppercase transition-colors text-center cursor-pointer"
-                    >
-                      VIEW CERTIFICATE 🔍
-                    </button>
-
-                    {isAdminLoggedIn && (
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleEditCert(cert)}
-                          className="p-2 border border-black hover:bg-black hover:text-[#FFCC00] transition-colors"
-                          title="Edit Certificate"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteCert(cert.id, cert.title)}
-                          className="p-2 border border-black text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                          title="Delete Certificate"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </section>
 
@@ -5246,16 +5329,16 @@ export default function App() {
       {/* CERTIFICATE DETAIL VIEWER MODAL */}
       {selectedCertModal && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[650px] w-full max-h-[90vh] overflow-y-auto flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none relative">
+          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[650px] w-full max-h-[90vh] overflow-y-auto flex flex-col rounded-none relative">
             <button
               type="button"
               onClick={() => setSelectedCertModal(null)}
-              className="absolute top-4 right-4 p-2 bg-black text-[#FFCC00] hover:bg-[#FFCC00] hover:text-black border-2 border-black transition-colors font-black text-xs cursor-pointer"
+              className="absolute top-4 right-4 p-2 bg-[#E5E5E5] text-black hover:bg-gray-300 transition-colors font-black text-xs cursor-pointer"
             >
               <X size={18} />
             </button>
 
-            <span className="text-[10px] font-black uppercase tracking-widest bg-black text-[#FFCC00] px-2.5 py-1 inline-block self-start mb-3 border border-black">
+            <span className="text-[10px] font-black uppercase tracking-widest bg-[#E5E5E5] text-black px-2.5 py-1 inline-block self-start mb-3">
               {selectedCertModal.category || "ACCREDITATION"}
             </span>
 
@@ -5272,38 +5355,27 @@ export default function App() {
 
             {/* Image Preview */}
             {selectedCertModal.imageUrl && (
-              <div className="w-full h-64 sm:h-80 bg-gray-200 border-2 border-black overflow-hidden mb-5">
+              <div className="w-full h-64 sm:h-80 bg-[#E5E5E5] overflow-hidden mb-5">
                 <img
                   src={selectedCertModal.imageUrl}
                   alt={selectedCertModal.title}
-                  className="w-full h-full object-contain bg-black/90 p-2"
+                  className="w-full h-full object-contain bg-[#E5E5E5] p-2"
                 />
               </div>
             )}
 
-            <div className="space-y-3 text-xs font-serif text-gray-800 leading-relaxed mb-6">
-              <h4 className="font-black uppercase text-sm text-black">Deskripsi &amp; Pengakuan Keahlian:</h4>
-              <p>{selectedCertModal.description || "Sertifikat ini membuktikan keahlian profesional yang diakui secara resmi."}</p>
-            </div>
+            {selectedCertModal.description && (
+              <div className="space-y-1 text-xs font-serif text-gray-800 leading-relaxed mb-6 bg-gray-50 p-3 border border-black/20">
+                <h4 className="font-black uppercase text-[11px] text-black font-sans">Deskripsi Singkat:</h4>
+                <p>{selectedCertModal.description}</p>
+              </div>
+            )}
 
-            <div className="flex items-center justify-between gap-3 pt-4 border-t-2 border-black">
-              {selectedCertModal.credentialUrl ? (
-                <a
-                  href={selectedCertModal.credentialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 bg-[#FFCC00] text-black border-2 border-black text-xs font-black uppercase hover:bg-black hover:text-[#FFCC00] transition-colors flex items-center gap-1.5 cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                >
-                  <span>VERIFY CREDENTIAL ↗</span>
-                </a>
-              ) : (
-                <span className="text-xs font-bold italic text-gray-500">Credential URL not provided</span>
-              )}
-
+            <div className="flex items-center justify-end pt-4 border-t-2 border-black">
               <button
                 type="button"
                 onClick={() => setSelectedCertModal(null)}
-                className="px-4 py-2 bg-gray-200 text-black border-2 border-black text-xs font-black uppercase hover:bg-black hover:text-white transition-colors cursor-pointer"
+                className="px-6 py-2.5 bg-[#E5E5E5] text-black hover:bg-gray-300 text-xs font-black uppercase transition-colors cursor-pointer"
               >
                 TUTUP
               </button>
@@ -5315,10 +5387,9 @@ export default function App() {
       {/* ADMIN MANAGE / EDIT CERTIFICATE MODAL */}
       {showManageCertModal && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[600px] w-full max-h-[90vh] overflow-y-auto flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none relative">
+          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[600px] w-full max-h-[90vh] overflow-y-auto flex flex-col rounded-none relative font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
             <div className="flex items-center justify-between border-b-2 border-black pb-3 mb-5">
-              <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                <Award size={20} className="text-[#FFCC00] fill-black" />
+              <h3 className="text-lg font-black uppercase tracking-tight font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
                 <span>{editingCertId ? "EDIT SERTIFIKAT (ADMIN)" : "TAMBAH SERTIFIKAT BARU (ADMIN)"}</span>
               </h3>
               <div className="flex items-center gap-2">
@@ -5337,10 +5408,10 @@ export default function App() {
                         description: "Akreditasi keahlian pengolahan data, SQL, visualisasi R & Tableau, serta analisis bisnis berstandar industri."
                       });
                     }}
-                    className="px-2.5 py-1 bg-[#FFCC00] text-black border border-black font-black text-[10px] uppercase hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
+                    className="px-2.5 py-1 bg-[#FFCC00] text-black border border-black font-black text-[10px] uppercase hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer font-jost"
                     title="Isi otomatis formulir dengan data contoh"
                   >
-                    ✨ ISI CONTOH DATA
+                    ISI CONTOH DATA
                   </button>
                 )}
                 <button
@@ -5353,7 +5424,7 @@ export default function App() {
               </div>
             </div>
 
-            <form onSubmit={handleSaveCert} className="space-y-4 text-xs font-sans">
+            <form onSubmit={handleSaveCert} className="space-y-4 text-xs font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
               <div>
                 <label className="block font-black uppercase mb-1">Judul / Nama Sertifikat *</label>
                 <input
@@ -5362,7 +5433,7 @@ export default function App() {
                   value={certFormData.title}
                   onChange={(e) => setCertFormData({ ...certFormData, title: e.target.value })}
                   placeholder="Misal: Google UX Design Professional Certificate"
-                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 font-jost"
                 />
               </div>
 
@@ -5375,7 +5446,7 @@ export default function App() {
                     value={certFormData.issuer}
                     onChange={(e) => setCertFormData({ ...certFormData, issuer: e.target.value })}
                     placeholder="Misal: Google / Coursera / AWS"
-                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 font-jost"
                   />
                 </div>
 
@@ -5387,98 +5458,111 @@ export default function App() {
                     value={certFormData.date}
                     onChange={(e) => setCertFormData({ ...certFormData, date: e.target.value })}
                     placeholder="Misal: 2026 atau Agustus 2026"
-                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 font-jost"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-black uppercase mb-1">Kategori Sertifikat</label>
-                  <select
-                    value={certFormData.category}
-                    onChange={(e) => setCertFormData({ ...certFormData, category: e.target.value })}
-                    className="w-full border-2 border-black p-2 font-bold focus:outline-none bg-white cursor-pointer"
-                  >
-                    <option value="ENGINEERING">ENGINEERING</option>
-                    <option value="UI/UX DESIGN">UI/UX DESIGN</option>
-                    <option value="CLOUD & DATA">CLOUD &amp; DATA</option>
-                    <option value="MEDIA & ART">MEDIA &amp; ART</option>
-                    <option value="GENERAL">GENERAL</option>
-                  </select>
+              <div>
+                <label className="block font-black uppercase mb-1">Kategori Sertifikat</label>
+                <select
+                  value={certFormData.category}
+                  onChange={(e) => setCertFormData({ ...certFormData, category: e.target.value })}
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none bg-white cursor-pointer font-jost"
+                >
+                  <option value="ENGINEERING">ENGINEERING</option>
+                  <option value="UI/UX DESIGN">UI/UX DESIGN</option>
+                  <option value="CLOUD & DATA">CLOUD &amp; DATA</option>
+                  <option value="MEDIA & ART">MEDIA &amp; ART</option>
+                  <option value="GENERAL">GENERAL</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-black uppercase mb-1 font-jost">Foto / Gambar Sertifikat *</label>
+                
+                {/* Upload File Dropzone Box */}
+                <div className="border-2 border-dashed border-black p-4 bg-white text-center cursor-pointer hover:bg-yellow-50 transition-colors relative mb-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCertImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="flex flex-col items-center justify-center gap-1.5 font-jost">
+                    <Upload size={22} className="text-black/70" />
+                    <span className="text-xs font-black text-black font-jost">
+                      {certFormData.imageUrl ? "Klik / Pilih Gambar Baru Untuk Mengganti Foto" : "+ Upload Foto Sertifikat Dari Komputer"}
+                    </span>
+                    <span className="text-[9px] font-jost text-black/60">
+                      Format JPG, PNG, WEBP didukung. Otomatis terkompresi.
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block font-black uppercase mb-1">URL Verifikasi Kredensial</label>
+                {/* Preview Thumbnail if image exists */}
+                {certFormData.imageUrl && (
+                  <div className="flex items-center gap-3 p-2 bg-gray-100 border-2 border-black mb-2 font-jost">
+                    <img
+                      src={certFormData.imageUrl}
+                      alt="Preview Sertifikat"
+                      className="w-16 h-12 object-cover border border-black bg-white flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[10px] font-black uppercase block text-green-700 font-jost">Gambar Sertifikat Terpasang</span>
+                      <span className="text-[9px] font-mono text-gray-500 truncate block">
+                        {certFormData.imageUrl.startsWith("data:") ? "File lokal terkompresi (Base64)" : certFormData.imageUrl}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCertFormData({ ...certFormData, imageUrl: "" })}
+                      className="px-2.5 py-1 bg-red-600 text-white text-[9px] font-black uppercase border border-black hover:bg-red-700 transition-colors cursor-pointer flex-shrink-0 font-jost"
+                    >
+                      Hapus Foto
+                    </button>
+                  </div>
+                )}
+
+                {/* Direct URL Fallback */}
+                <details className="mt-1 text-[10px] font-jost">
+                  <summary className="font-bold text-gray-600 cursor-pointer hover:text-black font-jost">
+                    Atau gunakan URL Gambar Web langsung (Opsional)
+                  </summary>
                   <input
                     type="url"
-                    value={certFormData.credentialUrl || ""}
-                    onChange={(e) => setCertFormData({ ...certFormData, credentialUrl: e.target.value })}
-                    placeholder="https://coursera.org/verify/..."
-                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                    value={certFormData.imageUrl || ""}
+                    onChange={(e) => setCertFormData({ ...certFormData, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/... atau URL foto"
+                    className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 mt-1 font-jost"
                   />
-                </div>
+                </details>
               </div>
 
               <div>
-                <label className="block font-black uppercase mb-1">URL Gambar / Foto Sertifikat</label>
-                <input
-                  type="url"
-                  value={certFormData.imageUrl || ""}
-                  onChange={(e) => setCertFormData({ ...certFormData, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/... atau URL gambar sertifikat"
-                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 mb-1.5"
-                />
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-bold text-gray-500">Pilih Foto Sampel:</span>
-                  <button
-                    type="button"
-                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=500&fit=crop&auto=format&q=80" })}
-                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
-                  >
-                    🖼️ Sampel 1 (Tech)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=500&fit=crop&auto=format&q=80" })}
-                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
-                  >
-                    🖼️ Sampel 2 (Code)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCertFormData({ ...certFormData, imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop&auto=format&q=80" })}
-                    className="px-2 py-0.5 bg-gray-200 border border-black text-[9px] font-bold hover:bg-black hover:text-white cursor-pointer"
-                  >
-                    🖼️ Sampel 3 (Cloud)
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-black uppercase mb-1">Deskripsi &amp; Ringkasan Keahlian</label>
+                <label className="block font-black uppercase mb-1 font-jost">Deskripsi Singkat Sertifikat</label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={certFormData.description || ""}
                   onChange={(e) => setCertFormData({ ...certFormData, description: e.target.value })}
-                  placeholder="Penjelasan singkat mengenai keterampilan yang diuji..."
-                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50"
+                  placeholder="Misal: Akreditasi keahlian pengolahan data, SQL, dan analisis bisnis."
+                  className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:bg-yellow-50 font-jost"
                 />
               </div>
 
-              <div className="pt-3 border-t-2 border-black flex items-center justify-end gap-3">
+              <div className="pt-3 border-t-2 border-black flex items-center justify-end gap-3 font-jost">
                 <button
                   type="button"
                   onClick={() => setShowManageCertModal(false)}
-                  className="border-2 border-black px-4 py-2 text-xs font-black uppercase hover:bg-gray-200 cursor-pointer"
+                  className="border-2 border-black px-4 py-2 text-xs font-black uppercase hover:bg-gray-200 cursor-pointer font-jost"
                 >
                   BATAL
                 </button>
                 <button
                   type="submit"
-                  className="bg-black text-[#FFCC00] border-2 border-black px-5 py-2 text-xs font-black uppercase hover:bg-gray-800 cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                  className="bg-black text-[#FFCC00] border-2 border-black px-5 py-2 text-xs font-black uppercase hover:bg-gray-800 cursor-pointer font-jost"
                 >
-                  {editingCertId ? "SIMPAN PERUBAHAN" : "+ TAMBAH SERTIFIKAT"}
+                  {editingCertId ? "SIMPAN PERUBAHAN" : "TAMBAH SERTIFIKAT"}
                 </button>
               </div>
             </form>
