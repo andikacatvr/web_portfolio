@@ -1019,6 +1019,11 @@ export default function App() {
   const [activeSubCategory, setActiveSubCategory] = useState<string>("SEMUA");
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   // Portfolio Projects State with localStorage & Supabase Sync
+  const sanitizeProjectItem = (p: any) => ({
+    ...p,
+    mainCategory: formatCategoryBadge(p ? p.mainCategory : "Technology")
+  });
+
   const [projects, setProjects] = useState<any[]>(() => {
     const deletedIds = getDeletedProjectIds();
     try {
@@ -1028,7 +1033,9 @@ export default function App() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) {
-            return parsed.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+            return parsed
+              .filter((p: any) => p && p.id && !deletedIds.includes(p.id))
+              .map(sanitizeProjectItem);
           }
         }
         return [];
@@ -1048,7 +1055,9 @@ export default function App() {
       .then((supabaseProjects) => {
         const deletedIds = getDeletedProjectIds();
         if (supabaseProjects && Array.isArray(supabaseProjects)) {
-          const cleanProjects = supabaseProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+          const cleanProjects = supabaseProjects
+            .filter((p: any) => p && p.id && !deletedIds.includes(p.id))
+            .map(sanitizeProjectItem);
           setProjects(cleanProjects);
         }
       })
@@ -1059,7 +1068,9 @@ export default function App() {
     const unsubscribe = subscribeToProjectsRealtime((realtimeProjects) => {
       const deletedIds = getDeletedProjectIds();
       if (realtimeProjects && Array.isArray(realtimeProjects)) {
-        const cleanProjects = realtimeProjects.filter((p: any) => p && p.id && !deletedIds.includes(p.id));
+        const cleanProjects = realtimeProjects
+          .filter((p: any) => p && p.id && !deletedIds.includes(p.id))
+          .map(sanitizeProjectItem);
         setProjects(cleanProjects);
       }
     });
@@ -2208,7 +2219,7 @@ export default function App() {
     // Reset Form
     setFormData({
       title: "",
-      mainCategory: "ENGINEERING & DATA",
+      mainCategory: "Technology",
       subCategory: "Web Development",
       imageUrl: "",
       images: [],
