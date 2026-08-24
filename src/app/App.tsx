@@ -1407,10 +1407,14 @@ export default function App() {
   // Certificates State with localStorage & Supabase Sync
   const [certificates, setCertificates] = useState<CertificateItem[]>(() => {
     try {
+      const isInitialized = localStorage.getItem("andika_certs_initialized");
       const saved = localStorage.getItem("andika_certificates");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (isInitialized === "true") {
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        }
+        return [];
       }
     } catch (e) {}
     return DEFAULT_CERTIFICATES;
@@ -1491,15 +1495,15 @@ export default function App() {
   // Load Certificates from Supabase & Subscribe to Realtime
   useEffect(() => {
     fetchCertificatesFromSupabase().then((supabaseCerts) => {
-      if (supabaseCerts && Array.isArray(supabaseCerts) && supabaseCerts.length > 0) {
+      if (supabaseCerts !== null && Array.isArray(supabaseCerts)) {
+        localStorage.setItem("andika_certs_initialized", "true");
         setCertificates(supabaseCerts);
-      } else {
-        setCertificates(DEFAULT_CERTIFICATES);
       }
     });
 
     const unsubscribe = subscribeToCertificatesRealtime((realtimeCerts) => {
-      if (realtimeCerts && Array.isArray(realtimeCerts) && realtimeCerts.length > 0) {
+      if (realtimeCerts !== null && Array.isArray(realtimeCerts)) {
+        localStorage.setItem("andika_certs_initialized", "true");
         setCertificates(realtimeCerts);
       }
     });
@@ -1540,6 +1544,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem("andika_certificates", JSON.stringify(certificates));
+      localStorage.setItem("andika_certs_initialized", "true");
     } catch (e) {}
   }, [certificates]);
 
@@ -4687,90 +4692,101 @@ export default function App() {
             </div>
 
             {/* Certificates Horizontal Scrollable Area */}
-            <div className="relative py-2">
-              <div
-                ref={setCertScrollRef}
-                onMouseDown={handleCertMouseDown}
-                onMouseLeave={handleCertMouseLeaveOrUp}
-                onMouseUp={handleCertMouseLeaveOrUp}
-                onMouseMove={handleCertMouseMove}
-                className={`flex flex-nowrap overflow-x-auto gap-6 pb-4 pt-2 select-none scroll-smooth custom-scrollbar ${
-                  isCertDragging ? "cursor-grabbing" : "cursor-grab"
-                }`}
-              >
-                {certificates.map((cert) => (
-                  <div
-                    key={cert.id}
-                    className="group bg-[#E5E5E5] p-5 flex flex-col justify-between transition-all duration-200 w-[300px] sm:w-[340px] md:w-[360px] shrink-0 flex-none"
-                  >
-                    <div>
-                      {/* Cover / Certificate Preview Image */}
-                      <div className="w-full h-44 bg-gray-200 border-2 border-black overflow-hidden mb-4 relative">
-                        {cert.imageUrl ? (
-                          <img
-                            src={cert.imageUrl}
-                            alt={cert.title}
-                            draggable={false}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-[#E3E3E3] text-black/40 font-black text-xs select-none">
-                            NO CERTIFICATE IMAGE
+            {certificates.length === 0 ? (
+              <div className="border-2 border-dashed border-black bg-[#E5E5E5] p-8 text-center my-4 font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
+                <p className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">Belum ada sertifikat terdaftar</p>
+                <p className="text-xs text-gray-500">
+                  {isAdminLoggedIn
+                    ? 'Klik tombol "+ ADD" di atas untuk menambahkan sertifikat atau akreditasi baru.'
+                    : 'Daftar sertifikat & lisensi keahlian akan segera diperbarui.'}
+                </p>
+              </div>
+            ) : (
+              <div className="relative py-2">
+                <div
+                  ref={setCertScrollRef}
+                  onMouseDown={handleCertMouseDown}
+                  onMouseLeave={handleCertMouseLeaveOrUp}
+                  onMouseUp={handleCertMouseLeaveOrUp}
+                  onMouseMove={handleCertMouseMove}
+                  className={`flex flex-nowrap overflow-x-auto gap-6 pb-4 pt-2 select-none scroll-smooth custom-scrollbar ${
+                    isCertDragging ? "cursor-grabbing" : "cursor-grab"
+                  }`}
+                >
+                  {certificates.map((cert) => (
+                    <div
+                      key={cert.id}
+                      className="group bg-[#E5E5E5] p-5 flex flex-col justify-between transition-all duration-200 w-[300px] sm:w-[340px] md:w-[360px] shrink-0 flex-none"
+                    >
+                      <div>
+                        {/* Cover / Certificate Preview Image */}
+                        <div className="w-full h-44 bg-gray-200 border-2 border-black overflow-hidden mb-4 relative">
+                          {cert.imageUrl ? (
+                            <img
+                              src={cert.imageUrl}
+                              alt={cert.title}
+                              draggable={false}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[#E3E3E3] text-black/40 font-black text-xs select-none">
+                              NO CERTIFICATE IMAGE
+                            </div>
+                          )}
+                          <span className="absolute top-2 left-2 bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black select-none">
+                            {cert.category || "General"}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 mb-2 select-none">
+                          <span className="text-[10px] font-black uppercase bg-[#FFCC00] text-black px-2 py-0.5 border border-black">
+                            {cert.issuer}
+                          </span>
+                          <span className="text-[10px] font-bold text-gray-500">
+                            {cert.date}
+                          </span>
+                        </div>
+
+                        <h3 className="text-base font-black uppercase line-clamp-2 mb-4 select-none" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+                          {cert.title}
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-3 border-t border-black/20">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCertModal(cert)}
+                          className="flex-1 py-2 bg-black text-white hover:bg-[#FFCC00] hover:text-black border border-black text-xs font-black uppercase transition-colors text-center cursor-pointer select-none"
+                        >
+                          VIEW
+                        </button>
+
+                        {isAdminLoggedIn && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleEditCert(cert)}
+                              className="p-2 border border-black hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
+                              title="Edit Certificate"
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCert(cert.id, cert.title)}
+                              className="p-2 border border-black text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                              title="Delete Certificate"
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         )}
-                        <span className="absolute top-2 left-2 bg-black text-[#FFCC00] text-[9px] font-black uppercase px-2 py-0.5 border border-black select-none">
-                          {cert.category || "General"}
-                        </span>
                       </div>
-
-                      <div className="flex items-center justify-between gap-2 mb-2 select-none">
-                        <span className="text-[10px] font-black uppercase bg-[#FFCC00] text-black px-2 py-0.5 border border-black">
-                          {cert.issuer}
-                        </span>
-                        <span className="text-[10px] font-bold text-gray-500">
-                          {cert.date}
-                        </span>
-                      </div>
-
-                      <h3 className="text-base font-black uppercase line-clamp-2 mb-4 select-none" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
-                        {cert.title}
-                      </h3>
                     </div>
-
-                    <div className="flex items-center gap-2 pt-3 border-t border-black/20">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCertModal(cert)}
-                        className="flex-1 py-2 bg-black text-white hover:bg-[#FFCC00] hover:text-black border border-black text-xs font-black uppercase transition-colors text-center cursor-pointer select-none"
-                      >
-                        VIEW
-                      </button>
-
-                      {isAdminLoggedIn && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleEditCert(cert)}
-                            className="p-2 border border-black hover:bg-black hover:text-[#FFCC00] transition-colors cursor-pointer"
-                            title="Edit Certificate"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteCert(cert.id, cert.title)}
-                            className="p-2 border border-black text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-                            title="Delete Certificate"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </section>
 
         </main>
