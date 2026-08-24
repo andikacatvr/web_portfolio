@@ -72,7 +72,10 @@ import {
   fetchCertificatesFromSupabase,
   upsertCertificateToSupabase,
   deleteCertificateFromSupabase,
-  subscribeToCertificatesRealtime
+  subscribeToCertificatesRealtime,
+  fetchSiteSettingFromSupabase,
+  upsertSiteSettingToSupabase,
+  subscribeToSiteSettingsRealtime
 } from "../lib/supabase";
 
 const getOrdinal = (n: number) => {
@@ -1221,6 +1224,7 @@ export default function App() {
   const handleSaveDevProfile = (e: React.FormEvent) => {
     e.preventDefault();
     setDevProfile(devProfileForm);
+    upsertSiteSettingToSupabase("dev_profile", devProfileForm);
     setShowDevProfileModal(false);
     setSavedToast("Profil Pengembang berhasil diperbarui!");
     setTimeout(() => setSavedToast(null), 3000);
@@ -1309,6 +1313,7 @@ export default function App() {
   const handleSaveCalendarStatus = (e: React.FormEvent) => {
     e.preventDefault();
     setCalendarStatus(calendarForm);
+    upsertSiteSettingToSupabase("calendar", calendarForm);
     setShowCalendarModal(false);
     setSavedToast("Jadwal Ketersediaan berhasil diperbarui!");
     setTimeout(() => setSavedToast(null), 3000);
@@ -1348,6 +1353,7 @@ export default function App() {
   const handleSaveWritings = (e: React.FormEvent) => {
     e.preventDefault();
     setWritings(writingsForm);
+    upsertSiteSettingToSupabase("writings", writingsForm);
     setShowWritingsModal(false);
     setSavedToast("Catatan & Opini Desain berhasil diperbarui!");
     setTimeout(() => setSavedToast(null), 3000);
@@ -1483,6 +1489,33 @@ export default function App() {
     };
   }, []);
 
+  // Load Site Settings (Hero, Dev Profile, Calendar, Writings, Services, Tools & Tech, Admin Creds) from Supabase
+  useEffect(() => {
+    fetchSiteSettingFromSupabase("hero").then(val => { if (val) setHeroPortfolio(val); });
+    fetchSiteSettingFromSupabase("dev_profile").then(val => { if (val) setDevProfile(val); });
+    fetchSiteSettingFromSupabase("calendar").then(val => { if (val) setCalendarStatus(val); });
+    fetchSiteSettingFromSupabase("writings").then(val => { if (val) setWritings(val); });
+    fetchSiteSettingFromSupabase("services").then(val => { if (val) setServices(val); });
+    fetchSiteSettingFromSupabase("tools_tech").then(val => { if (val) setSectorTools(val); });
+    fetchSiteSettingFromSupabase("admin_creds").then(val => { if (val) setAdminCreds(val); });
+
+    const unSubHero = subscribeToSiteSettingsRealtime("hero", setHeroPortfolio);
+    const unSubDev = subscribeToSiteSettingsRealtime("dev_profile", setDevProfile);
+    const unSubCal = subscribeToSiteSettingsRealtime("calendar", setCalendarStatus);
+    const unSubWritings = subscribeToSiteSettingsRealtime("writings", setWritings);
+    const unSubServices = subscribeToSiteSettingsRealtime("services", setServices);
+    const unSubTools = subscribeToSiteSettingsRealtime("tools_tech", setSectorTools);
+
+    return () => {
+      if (unSubHero) unSubHero();
+      if (unSubDev) unSubDev();
+      if (unSubCal) unSubCal();
+      if (unSubWritings) unSubWritings();
+      if (unSubServices) unSubServices();
+      if (unSubTools) unSubTools();
+    };
+  }, []);
+
   // Save Certificates to localStorage
   useEffect(() => {
     try {
@@ -1557,6 +1590,7 @@ export default function App() {
       return;
     }
     setServices(validServices);
+    upsertSiteSettingToSupabase("services", validServices);
     setShowServicesModal(false);
     setSavedToast("Keahlian & Layanan berhasil diperbarui!");
     setTimeout(() => setSavedToast(null), 3000);
@@ -1657,10 +1691,12 @@ export default function App() {
       .split(",")
       .map(t => t.trim())
       .filter(t => t.length > 0);
-    setSectorTools(prev => ({
-      ...prev,
+    const updatedTools = {
+      ...sectorTools,
       [editingToolsCat]: parsedTools
-    }));
+    };
+    setSectorTools(updatedTools);
+    upsertSiteSettingToSupabase("tools_tech", updatedTools);
     setSavedToast("List Tools & Tech berhasil diperbarui!");
     setTimeout(() => setSavedToast(null), 3000);
     setShowToolsTechModal(false);
@@ -1844,6 +1880,7 @@ export default function App() {
       return;
     }
     saveAdminCredentials(changeCredsForm);
+    upsertSiteSettingToSupabase("admin_creds", changeCredsForm);
     setShowChangeCredsModal(false);
     setSavedToast("Credentials Login Admin berhasil diperbarui & disimpan aman!");
     setTimeout(() => setSavedToast(null), 3000);
@@ -1932,6 +1969,7 @@ export default function App() {
       content: paragraphs
     };
     setHeroPortfolio(updated);
+    upsertSiteSettingToSupabase("hero", updated);
     if (selectedArticle?.id === "hero-intro") {
       setSelectedArticle(updated);
     }

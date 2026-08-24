@@ -256,3 +256,67 @@ export const subscribeToCertificatesRealtime = (onUpdate: (certs: CertificateIte
     return () => {};
   }
 };
+
+// -------------------------------------------------------------
+// SITE SETTINGS SUPABASE HELPERS (Hero, Dev Profile, Calendar, Writings, Services, ToolsTech, AdminCreds)
+// -------------------------------------------------------------
+export const fetchSiteSettingFromSupabase = async (key: string): Promise<any | null> => {
+  try {
+    const client = getSupabase();
+    if (!client) return null;
+
+    const { data, error } = await client
+      .from("site_settings")
+      .select("value")
+      .eq("key", key)
+      .single();
+
+    if (error || !data) return null;
+    return data.value;
+  } catch (e) {
+    console.error(`Supabase fetch site_setting [${key}] exception:`, e);
+    return null;
+  }
+};
+
+export const upsertSiteSettingToSupabase = async (key: string, value: any) => {
+  try {
+    const client = getSupabase();
+    if (!client) return;
+
+    await client.from("site_settings").upsert({
+      key,
+      value,
+      updated_at: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error(`Supabase upsert site_setting [${key}] exception:`, e);
+  }
+};
+
+export const subscribeToSiteSettingsRealtime = (key: string, onUpdate: (val: any) => void) => {
+  const client = getSupabase();
+  if (!client) return () => {};
+
+  try {
+    const channel = client
+      .channel(`public:site_settings:${key}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_settings", filter: `key=eq.${key}` },
+        async (payload: any) => {
+          if (payload.new && payload.new.value) {
+            onUpdate(payload.new.value);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
