@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Jost Text with 50% Half-Length Yellow Underline on Hover) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text with Centered 50% Yellow Underline on Hover) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3415,7 +3415,7 @@ export default function App() {
                         className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                        <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
                           activeCategory === "Beranda" && !selectedArticle
                             ? "text-[#FFCC00] after:scale-x-100"
                             : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
@@ -3436,7 +3436,7 @@ export default function App() {
                           className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-[#FFCC00] group"
                           style={{ fontFamily: "Jost, sans-serif" }}
                         >
-                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
                             activeCategory === "Panel Admin" && !selectedArticle
                               ? "after:scale-x-100"
                               : "after:scale-x-0 group-hover:after:scale-x-100"
@@ -3462,7 +3462,7 @@ export default function App() {
                             className="w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
-                            <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                            <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
                               isActive
                                 ? "text-[#FFCC00] after:scale-x-100"
                                 : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
@@ -3482,7 +3482,7 @@ export default function App() {
                         className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white group cursor-pointer"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
                           PRINT PORTFOLIO
                         </span>
                       </button>
@@ -3505,7 +3505,7 @@ export default function App() {
                         className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white group cursor-pointer text-center tracking-wider"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
                           MY PROJECTS
                         </span>
                       </button>
@@ -3515,7 +3515,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Desktop Navigation Horizontal Bar (With 50% Half-Length Left-to-Right Animated Underline on Hover) */}
+            {/* Desktop Navigation Horizontal Bar (With Centered 50% Animated Underline on Hover) */}
             <div className="hidden lg:flex items-center justify-between">
               <div className="flex items-center gap-0">
                 {/* Desktop Beranda Tab */}
@@ -3524,7 +3524,7 @@ export default function App() {
                   title="Home"
                   className="px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-center cursor-pointer text-black group"
                 >
-                  <span className={`relative w-fit inline-flex items-center after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-[50%] after:h-[2px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
+                  <span className={`relative w-fit inline-flex items-center after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-black after:origin-center after:transition-transform after:duration-300 ${
                     activeCategory === "Beranda" && !selectedArticle
                       ? "after:scale-x-100"
                       : "after:scale-x-0 group-hover:after:scale-x-100"
@@ -3543,7 +3543,7 @@ export default function App() {
                     }}
                     className="px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer bg-black text-[#FFCC00] hover:bg-gray-800 group"
                   >
-                    <span className={`relative w-fit inline-flex items-center gap-1.5 after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                    <span className={`relative w-fit inline-flex items-center gap-1.5 after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
                       activeCategory === "Panel Admin" && !selectedArticle
                         ? "text-white after:scale-x-100"
                         : "after:scale-x-0 group-hover:after:scale-x-100"
@@ -3571,7 +3571,7 @@ export default function App() {
                       >
                         <div className="flex items-center gap-1.5">
                           <IconComponent size={13} />
-                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
+                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-black after:origin-center after:transition-transform after:duration-300 ${
                             isMegaOpen || isActive
                               ? "after:scale-x-100 font-black"
                               : "after:scale-x-0 group-hover:after:scale-x-100"
@@ -3633,7 +3633,7 @@ export default function App() {
                       title="Search Projects"
                     >
                       <Search size={13} />
-                      <span className="hidden sm:inline relative after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-black after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                      <span className="hidden sm:inline relative after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-black after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
                         SEARCH
                       </span>
                     </button>
