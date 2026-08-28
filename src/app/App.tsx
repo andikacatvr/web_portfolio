@@ -3592,10 +3592,10 @@ export default function App() {
 
               {/* Right Side: SEARCH Button with Inline Search Column (LEFT) & PRINT PORTFOLIO Button (RIGHT) */}
               <div className="flex items-center gap-2 ml-auto lg:ml-0 py-1.5 relative">
-                {/* 1. SEARCH Button & Inline Search Column (on the LEFT side of Print Portfolio) */}
+                {/* 1. SEARCH Button & Inline Search Column (on the LEFT side of Print Portfolio - Borderless) */}
                 <div className="relative">
                   {isSearchOpen ? (
-                    <div className="flex items-center gap-1.5 bg-white border border-black px-2 py-1 w-[200px] sm:w-[240px] animate-in fade-in slide-in-from-right-2 duration-150">
+                    <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 w-[200px] sm:w-[240px] animate-in fade-in slide-in-from-right-2 duration-150">
                       <Search size={13} className="text-black/60 flex-shrink-0" />
                       <input
                         ref={searchInputRef}
@@ -3629,10 +3629,13 @@ export default function App() {
                         setOpenMegaMenuId(null);
                         setTimeout(() => searchInputRef.current?.focus(), 100);
                       }}
-                      className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0"
+                      className="text-[10px] font-black uppercase tracking-wider text-black px-2 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0 group"
                       title="Search Projects"
                     >
-                      <Search size={12} /> <span className="hidden sm:inline">SEARCH</span>
+                      <Search size={13} />
+                      <span className="hidden sm:inline relative after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-black after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                        SEARCH
+                      </span>
                     </button>
                   )}
 
