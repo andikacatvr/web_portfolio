@@ -4662,9 +4662,6 @@ export default function App() {
                 <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
                   CERTIFICATES
                 </h2>
-                <p className="text-xs text-gray-600 font-serif mt-1">
-                  Dokumentasi lisensi resmi, akreditasi profesional, dan sertifikasi keahlian terverifikasi.
-                </p>
               </div>
 
               {isAdminLoggedIn && (
