@@ -3380,15 +3380,128 @@ export default function App() {
               </div>
             )}
 
-            {/* Navigation Menu (Mobile Sidebar Dropdown & Desktop Bar) */}
-            <div className="flex items-center justify-between">
-              <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row items-start lg:items-center gap-0 absolute lg:static top-full left-0 right-0 bg-[#FFCC00] border-b-2 border-black lg:border-0 z-50`}>
+            {/* MOBILE SLIDE-OVER LEFT SIDEBAR DRAWER */}
+            {menuOpen && (
+              <div className="lg:hidden fixed inset-0 z-[100] flex">
+                {/* Dark Backdrop Overlay */}
+                <div
+                  className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+                  onClick={() => setMenuOpen(false)}
+                />
 
+                {/* Left Sidebar Content Drawer */}
+                <div className="relative w-[280px] sm:w-[320px] bg-[#FFCC00] text-black h-full border-r-2 border-black z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
+                  {/* Top Sidebar Header */}
+                  <div>
+                    <div className="p-4 border-b-2 border-black flex items-center justify-between bg-black text-[#FFCC00]">
+                      <div className="flex items-center gap-2">
+                        <Menu size={16} />
+                        <span className="font-black text-xs uppercase tracking-widest">NAVIGATION</span>
+                      </div>
+                      <button
+                        onClick={() => setMenuOpen(false)}
+                        className="p-1 hover:bg-gray-800 text-[#FFCC00] cursor-pointer transition-colors"
+                        title="Close Sidebar"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {/* Navigation Links inside Sidebar */}
+                    <div className="p-3 space-y-2">
+                      {/* Beranda */}
+                      <button
+                        onClick={() => {
+                          handleSelectMainCategory("Beranda");
+                          setMenuOpen(false);
+                          setOpenMegaMenuId(null);
+                        }}
+                        className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border-2 border-black transition-all ${
+                          activeCategory === "Beranda" && !selectedArticle
+                            ? "bg-black text-white"
+                            : "bg-white text-black hover:bg-black/10"
+                        }`}
+                      >
+                        <House size={16} /> BERANDA
+                      </button>
+
+                      {/* Manage (if Admin) */}
+                      {isAdminLoggedIn && (
+                        <button
+                          onClick={() => {
+                            setActiveCategory("Panel Admin");
+                            setSelectedArticle(null);
+                            setOpenMegaMenuId(null);
+                            setMenuOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border-2 border-black transition-all ${
+                            activeCategory === "Panel Admin" && !selectedArticle
+                              ? "bg-black text-[#FFCC00]"
+                              : "bg-black text-[#FFCC00] hover:bg-gray-900"
+                          }`}
+                        >
+                          <ShieldCheck size={16} /> MANAGE (ADMIN)
+                        </button>
+                      )}
+
+                      {/* Categories: Technology, Design, Visuals */}
+                      {MAIN_CATEGORIES.map((cat) => {
+                        const IconComponent = cat.icon;
+                        const isActive = activeCategory === cat.title && !selectedArticle;
+
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => {
+                              handleToggleMegaMenu(cat.id);
+                              setActiveCategory(cat.title);
+                              setSelectedArticle(null);
+                              setMenuOpen(false);
+                            }}
+                            className={`w-full px-4 py-3.5 text-xs font-black tracking-widest uppercase flex items-center justify-between border-2 border-black transition-all ${
+                              isActive
+                                ? "bg-black text-white"
+                                : "bg-white text-black hover:bg-black/10"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <IconComponent size={16} />
+                              <span>{cat.title}</span>
+                            </div>
+                            <ChevronDown size={14} className="-rotate-90" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Sidebar Footer */}
+                  <div className="p-4 border-t-2 border-black bg-black/5 space-y-3">
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handlePrint();
+                      }}
+                      className="w-full bg-black text-[#FFCC00] font-black text-xs uppercase py-2.5 px-3 border-2 border-black flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors cursor-pointer"
+                    >
+                      <Printer size={14} /> PRINT PORTFOLIO
+                    </button>
+                    <div className="text-[9px] font-mono text-black/60 text-center uppercase tracking-wider">
+                      ANDIKA CATUR ARIANTONO &bull; 2026
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Desktop Navigation Horizontal Bar */}
+            <div className="hidden lg:flex items-center justify-between">
+              <div className="flex items-center gap-0">
                 {/* Desktop Beranda Tab */}
                 <button
                   onClick={() => handleSelectMainCategory("Beranda")}
                   title="Home"
-                  className={`hidden lg:flex px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "text-black hover:bg-black/10"
+                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b-0 flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "text-black hover:bg-black/10"
                     }`}
                 >
                   <House size={16} />
@@ -3401,9 +3514,8 @@ export default function App() {
                       setActiveCategory("Panel Admin");
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
-                      setMenuOpen(false);
                     }}
-                    className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b-0 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
                       }`}
                   >
                     <ShieldCheck size={13} /> Manage
@@ -3417,15 +3529,14 @@ export default function App() {
                   const isMegaOpen = openMegaMenuId === cat.id;
 
                   return (
-                    <div key={cat.id} className="relative w-full lg:w-auto">
+                    <div key={cat.id} className="relative">
                       <button
                         onClick={() => {
                           handleToggleMegaMenu(cat.id);
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
-                          setMenuOpen(false);
                         }}
-                        className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-all whitespace-nowrap flex items-center justify-between lg:justify-start gap-1.5 border-b lg:border-b-0 border-black/20 ${isMegaOpen
+                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-all whitespace-nowrap flex items-center justify-start gap-1.5 ${isMegaOpen
                           ? "bg-[#F2F2F2] text-black font-black underline underline-offset-4 decoration-2 shadow-sm"
                           : isActive
                             ? "bg-[#F2F2F2] text-black font-black shadow-sm"
@@ -3446,7 +3557,7 @@ export default function App() {
                 })}
 
                 {/* Desktop Search Button */}
-                <div className="hidden lg:block relative w-full lg:w-auto">
+                <div className="relative">
                   <button
                     onClick={() => {
                       if (isSearchOpen) {
@@ -3458,7 +3569,7 @@ export default function App() {
                         setTimeout(() => searchInputRef.current?.focus(), 100);
                       }
                     }}
-                    className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-all whitespace-nowrap flex items-center justify-between lg:justify-start gap-1.5 border-b lg:border-b-0 border-black/20 cursor-pointer ${isSearchOpen || searchQuery
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-all whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${isSearchOpen || searchQuery
                       ? "bg-[#F2F2F2] text-black font-black shadow-sm"
                       : "text-black hover:bg-black/10"
                       }`}
