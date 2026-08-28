@@ -3266,21 +3266,59 @@ export default function App() {
       <div ref={navContainerRef} className="relative z-50">
         <nav className="bg-[#FFCC00] text-black sticky top-0 border-b-2 border-black font-black shadow-md">
           <div className="max-w-[1240px] mx-auto px-4">
-            <div className="flex items-center justify-between">
+            {/* Mobile Top Navbar Bar (Hamburger, Home, Search) */}
+            <div className="flex lg:hidden items-center justify-between py-2 text-black font-black">
+              {/* 1. Hamburger Menu Button */}
               <button
-                className="lg:hidden py-3 text-black flex items-center gap-2 font-bold text-xs uppercase"
+                className="p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                 onClick={() => setMenuOpen(!menuOpen)}
+                title={menuOpen ? "Close Sidebar Menu" : "Open Sidebar Menu"}
               >
-                {menuOpen ? <X size={18} /> : <Menu size={18} />} CATEGORY NAVIGATION
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
 
-              <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row items-start lg:items-center gap-0 absolute lg:static top-full left-0 right-0 bg-[#FFCC00] border-b border-black lg:border-0 z-50`}>
+              {/* 2. Home Button */}
+              <button
+                onClick={() => {
+                  handleSelectMainCategory("Beranda");
+                  setMenuOpen(false);
+                  setOpenMegaMenuId(null);
+                }}
+                className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-black/15" : ""}`}
+                title="Home"
+              >
+                <House size={20} />
+              </button>
 
-                {/* Beranda Tab */}
+              {/* 3. Search Button */}
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (isSearchOpen) {
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                  } else {
+                    setIsSearchOpen(true);
+                    setOpenMegaMenuId(null);
+                    setTimeout(() => searchInputRef.current?.focus(), 100);
+                  }
+                }}
+                className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${isSearchOpen || searchQuery ? "bg-black/15" : ""}`}
+                title={isSearchOpen ? "Close Search" : "Search Projects"}
+              >
+                <Search size={20} />
+              </button>
+            </div>
+
+            {/* Navigation Menu (Mobile Sidebar Dropdown & Desktop Bar) */}
+            <div className="flex items-center justify-between">
+              <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row items-start lg:items-center gap-0 absolute lg:static top-full left-0 right-0 bg-[#FFCC00] border-b-2 border-black lg:border-0 z-50`}>
+
+                {/* Desktop Beranda Tab */}
                 <button
                   onClick={() => handleSelectMainCategory("Beranda")}
                   title="Home"
-                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "text-black hover:bg-black/10"
+                  className={`hidden lg:flex px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "text-black hover:bg-black/10"
                     }`}
                 >
                   <House size={16} />
@@ -3293,15 +3331,16 @@ export default function App() {
                       setActiveCategory("Panel Admin");
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
+                      setMenuOpen(false);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
+                    className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b lg:border-b-0 border-black/20 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
                       }`}
                   >
                     <ShieldCheck size={13} /> Manage
                   </button>
                 )}
 
-                {/* 3 NYT Clickable Categories with Mega Menu Dropdown Toggle */}
+                {/* 3 Categories: Technology, Design, Visuals */}
                 {MAIN_CATEGORIES.map((cat) => {
                   const IconComponent = cat.icon;
                   const isActive = activeCategory === cat.title && !selectedArticle;
@@ -3314,6 +3353,7 @@ export default function App() {
                           handleToggleMegaMenu(cat.id);
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
+                          setMenuOpen(false);
                         }}
                         className={`w-full lg:w-auto px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-all whitespace-nowrap flex items-center justify-between lg:justify-start gap-1.5 border-b lg:border-b-0 border-black/20 ${isMegaOpen
                           ? "bg-[#F2F2F2] text-black font-black underline underline-offset-4 decoration-2 shadow-sm"
@@ -3335,8 +3375,8 @@ export default function App() {
                   );
                 })}
 
-                {/* Tombol Search di samping kanan MEDIA & PRODUCTION */}
-                <div className="relative w-full lg:w-auto">
+                {/* Desktop Search Button */}
+                <div className="hidden lg:block relative w-full lg:w-auto">
                   <button
                     onClick={() => {
                       if (isSearchOpen) {
