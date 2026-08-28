@@ -4553,7 +4553,7 @@ export default function App() {
                   <article
                     key={proj.id}
                     onClick={() => setSelectedArticle(proj)}
-                    className="bg-transparent text-white p-4 flex flex-col justify-between group transition-all rounded-none overflow-hidden cursor-pointer select-none border border-white/30 hover:border-white"
+                    className="bg-transparent text-white p-4 flex flex-col justify-between group transition-all rounded-none overflow-hidden cursor-pointer select-none"
                   >
                     <div>
                       <div className="overflow-hidden aspect-[4/3] bg-black/60 mb-3 rounded-none relative border border-white/20">
