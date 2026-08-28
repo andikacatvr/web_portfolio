@@ -3456,18 +3456,15 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center justify-between bg-transparent transition-colors duration-500 ease-in-out cursor-pointer group ${
+                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                               isActive
                                 ? "text-[#FFCC00]"
                                 : "text-white hover:text-[#FFCC00]"
                             }`}
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
-                            <div className="flex items-center gap-3">
-                              <IconComponent size={18} />
-                              <span>{cat.title}</span>
-                            </div>
-                            <ChevronDown size={14} className="-rotate-90 text-white/50 group-hover:text-[#FFCC00] transition-colors duration-500" />
+                            <IconComponent size={18} />
+                            <span>{cat.title}</span>
                           </button>
                         );
                       })}
@@ -3487,7 +3484,7 @@ export default function App() {
                       {/* Subtle Faint White Line */}
                       <div className="border-t border-white/20 pt-2 my-1" />
 
-                      {/* MY PROJECTS (Centered Text Button) */}
+                      {/* MY PROJECTS (Centered Text Button - Smaller Size) */}
                       <button
                         onClick={() => {
                           setMenuOpen(false);
@@ -3499,10 +3496,10 @@ export default function App() {
                             }
                           }, 100);
                         }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-center gap-2 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center"
+                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center gap-1.5 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center tracking-wider"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <FolderGit2 size={18} /> MY PROJECTS
+                        <FolderGit2 size={14} /> MY PROJECTS
                       </button>
                     </div>
                   </div>
