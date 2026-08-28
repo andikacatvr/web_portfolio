@@ -4467,33 +4467,33 @@ export default function App() {
             </>
           )}
 
-          {/* FEATURED PROJECTS SECTION CONTAINER WITH NATGEO YELLOW BACKGROUND & COLORFUL SOLID CARDS */}
+          {/* FEATURED PROJECTS SECTION CONTAINER WITH BLACK BACKGROUND & TRANSPARENT CARDS */}
           <section
-            style={{ backgroundColor: "#FFCC00", color: "#000000" }}
-            className="bg-[#FFCC00] text-black border-2 border-black p-6 sm:p-8 md:p-10 my-8 rounded-none"
+            style={{ backgroundColor: "#000000", color: "#FFFFFF" }}
+            className="bg-black text-white p-6 sm:p-8 md:p-10 my-8 rounded-none"
           >
             {/* Banner Indikator Pencarian (jika ada query pencarian) */}
             {searchQuery.trim() !== "" && (
-              <div className="mb-6 bg-black text-white p-3.5 border-2 border-black flex flex-wrap items-center justify-between gap-2 text-xs rounded-none shadow-[3px_3px_0px_0px_rgba(255,204,0,1)]">
+              <div className="mb-6 bg-[#FFCC00] text-black p-3.5 border border-white flex flex-wrap items-center justify-between gap-2 text-xs rounded-none shadow-md">
                 <div className="flex items-center gap-2">
-                  <Search size={16} className="text-[#FFCC00]" />
+                  <Search size={16} className="text-black" />
                   <span className="font-bold">
-                    SEARCHING PROJECT TITLE: <span className="text-[#FFCC00] underline font-black">"{searchQuery}"</span> ({displayedProjects.length} projects found)
+                    SEARCHING PROJECT TITLE: <span className="underline font-black">"{searchQuery}"</span> ({displayedProjects.length} projects found)
                   </span>
                 </div>
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="bg-[#FFCC00] text-black font-black uppercase text-[10px] px-3 py-1 hover:bg-yellow-400 border border-black flex items-center gap-1 cursor-pointer rounded-none"
+                  className="bg-black text-[#FFCC00] font-black uppercase text-[10px] px-3 py-1 hover:bg-gray-800 border border-black flex items-center gap-1 cursor-pointer rounded-none"
                 >
                   <X size={12} /> CLEAR SEARCH
                 </button>
               </div>
             )}
 
-            <div className="mb-6 border-b-2 border-black pb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="mb-6 border-b-2 border-white/20 pb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h3
-                  className="text-xl md:text-2xl font-black uppercase tracking-tight text-black"
+                  className="text-xl md:text-2xl font-black uppercase tracking-tight text-white"
                   style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                 >
                   {activeCategory === "Beranda"
@@ -4501,7 +4501,7 @@ export default function App() {
                     : `PROJECTS: ${activeCategory.toUpperCase()}`}
                 </h3>
                 {activeSubCategory !== "SEMUA" && (
-                  <span className="text-xs font-bold uppercase tracking-wider text-black/70">
+                  <span className="text-xs font-bold uppercase tracking-wider text-white/70">
                     Sub-Category Filter: #{activeSubCategory}
                   </span>
                 )}
@@ -4512,7 +4512,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setShowFeaturedModal(true)}
-                    className="bg-white text-black hover:bg-gray-100 text-xs font-black uppercase px-3.5 py-1.5 border-2 border-black flex items-center gap-2 transition-all cursor-pointer rounded-none"
+                    className="bg-white text-black hover:bg-gray-100 text-xs font-black uppercase px-3.5 py-1.5 border border-white flex items-center gap-2 transition-all cursor-pointer rounded-none"
                     title="Click to select which projects are displayed on Homepage (Maximum 6 Cards)"
                   >
                     <Filter size={14} className="text-black" />
@@ -4522,7 +4522,7 @@ export default function App() {
                     </span>
                   </button>
                 ) : (
-                  <span className="text-xs font-black uppercase bg-white text-black px-3 py-1.5 border-2 border-black flex items-center gap-2">
+                  <span className="text-xs font-black uppercase bg-white text-black px-3 py-1.5 border border-white flex items-center gap-2">
                     <Filter size={14} className="text-black" />
                     {displayedProjects.length} {activeCategory === "Beranda" ? "PROJECTS DISPLAYED" : "PROJECTS FOUND"}
                   </span>
@@ -4531,8 +4531,8 @@ export default function App() {
             </div>
 
             {displayedProjects.length === 0 ? (
-              <div className="text-center py-12 border-2 border-dashed border-black/30 p-8 rounded-none bg-yellow-400/30">
-                <p className="text-lg font-serif italic text-black/80 mb-3" style={{ fontFamily: "Jost, sans-serif" }}>
+              <div className="text-center py-12 border-2 border-dashed border-white/30 p-8 rounded-none bg-white/5">
+                <p className="text-lg font-serif italic text-white/80 mb-3" style={{ fontFamily: "Jost, sans-serif" }}>
                   {activeCategory === "Beranda"
                     ? "No featured projects selected by Admin yet."
                     : "No projects added for this category yet."}
@@ -4541,7 +4541,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setActiveCategory("Panel Admin")}
-                    className="bg-black text-[#FFCC00] text-xs font-black uppercase px-4 py-2 border border-black hover:bg-gray-800 transition-colors"
+                    className="bg-[#FFCC00] text-black text-xs font-black uppercase px-4 py-2 border border-white hover:bg-yellow-400 transition-colors"
                   >
                     + Manage &amp; Select Featured Projects in Admin Panel
                   </button>
@@ -4553,24 +4553,24 @@ export default function App() {
                   <article
                     key={proj.id}
                     onClick={() => setSelectedArticle(proj)}
-                    className={`${proj.bgColor || "bg-[#E3E3E3]"} ${proj.textColor || "text-black"} p-4 flex flex-col justify-between group transition-all rounded-none overflow-hidden cursor-pointer select-none border-2 border-black`}
+                    className="bg-transparent text-white p-4 flex flex-col justify-between group transition-all rounded-none overflow-hidden cursor-pointer select-none border border-white/30 hover:border-white"
                   >
                     <div>
-                      <div className="overflow-hidden aspect-[4/3] bg-gray-100 mb-3 rounded-none relative border border-black/40">
+                      <div className="overflow-hidden aspect-[4/3] bg-black/60 mb-3 rounded-none relative border border-white/20">
                         <img
                           src={proj.image}
                           alt={proj.headline}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         {proj.linkUrl && (
-                          <div className="absolute top-2 right-2 bg-black text-[#FFCC00] p-1.5 rounded-none font-black">
+                          <div className="absolute top-2 right-2 bg-black text-[#FFCC00] p-1.5 rounded-none font-black border border-white/40">
                             <ExternalLink size={12} />
                           </div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                        <span className={`text-[9px] font-black tracking-widest ${proj.badgeBg || "bg-black text-white"} px-2.5 py-1 inline-block rounded-none`}>
+                        <span className="text-[9px] font-black tracking-widest bg-black text-[#FFCC00] px-2.5 py-1 inline-block rounded-none border border-white/30">
                           {formatCategoryBadge(proj.mainCategory)}
                         </span>
                         <span className="text-[9px] font-black tracking-wider uppercase bg-white text-black px-2 py-0.5 inline-block rounded-none border border-black">
@@ -4579,19 +4579,19 @@ export default function App() {
                       </div>
 
                       <h4
-                        className="text-base font-black leading-snug mb-2 uppercase group-hover:underline"
+                        className="text-base font-black leading-snug mb-2 uppercase group-hover:text-[#FFCC00] transition-colors"
                         style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                       >
                         {proj.headline}
                       </h4>
-                      <p className={`text-xs ${proj.subTextColor || "text-white/95"} leading-relaxed font-serif line-clamp-3 mb-4`} style={{ fontFamily: "Jost, sans-serif" }}>
+                      <p className="text-xs text-gray-300 leading-relaxed font-serif line-clamp-3 mb-4" style={{ fontFamily: "Jost, sans-serif" }}>
                         {proj.deck}
                       </p>
                     </div>
 
-                    <div className="border-t border-black/20 pt-3 flex items-center justify-between text-[10px] font-black uppercase">
+                    <div className="border-t border-white/20 pt-3 flex items-center justify-between text-[10px] font-black uppercase text-white/80">
                       <span>{proj.date}</span>
-                      <span className="flex items-center gap-1 font-black group-hover:underline">
+                      <span className="flex items-center gap-1 font-black group-hover:text-[#FFCC00] group-hover:underline">
                         VIEW PROJECT <ArrowUpRight size={12} />
                       </span>
                     </div>
