@@ -4625,7 +4625,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="border-2 border-black p-6 bg-white overflow-hidden my-4 select-none">
+            <div className="overflow-hidden py-6 my-4 select-none">
               <div className="animate-marquee flex gap-6">
                 {[...services, ...services, ...services].map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center flex-shrink-0">
