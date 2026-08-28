@@ -3249,7 +3249,7 @@ export default function App() {
       </div>
 
       {/* Main Masthead Header with #F2F2F2 Background */}
-      <header className="bg-[#F2F2F2] text-black pt-2 pb-1 px-4 border-b-2 border-black relative overflow-hidden">
+      <header className="bg-[#F2F2F2] text-black pt-2 pb-1 px-4 relative overflow-hidden">
         <div className="max-w-[1240px] mx-auto flex items-center justify-center relative min-h-[48px] sm:min-h-[68px] md:min-h-[82px]">
 
 
