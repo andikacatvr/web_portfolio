@@ -4378,7 +4378,7 @@ export default function App() {
                         <UserIcon size={14} />
                       </div>
                     </div>
-                    <h4 className="text-xl font-black uppercase mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                    <h4 className="text-xl font-black mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
                       {devProfile.name}
                     </h4>
                     <p className="text-xs font-bold uppercase tracking-widest text-black/60 mb-3">
