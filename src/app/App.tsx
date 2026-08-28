@@ -3264,7 +3264,7 @@ export default function App() {
 
       {/* Primary Clean Navigation Bar (National Geographic Yellow Bar) */}
       <div ref={navContainerRef} className="relative z-50">
-        <nav className="bg-[#FFCC00] text-black sticky top-0 border-b-2 border-black font-black shadow-md">
+        <nav className="bg-[#FFCC00] text-black sticky top-0 font-black">
           <div className="max-w-[1240px] mx-auto px-4">
             {/* Mobile Top Navbar Bar (Hamburger + Home on Left, Search & Inline Input Bar on Right) */}
             <div className="flex lg:hidden items-center justify-between py-1.5 text-black font-black relative">
