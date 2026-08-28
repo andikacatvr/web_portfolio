@@ -743,7 +743,7 @@ function CalendarWidget({
       <div className="border-b border-black pb-2.5 mb-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5" style={{ fontFamily: "Playfair Display, serif" }}>
-            <CalendarIcon size={14} /> SCHEDULE
+            <CalendarIcon size={14} /> CALENDAR
           </h3>
           <div className="flex items-center gap-1">
             {isAdminLoggedIn && (
