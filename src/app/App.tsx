@@ -4580,7 +4580,7 @@ export default function App() {
 
                       <h4
                         className="text-base font-black leading-snug mb-2 uppercase group-hover:text-[#FFCC00] transition-colors"
-                        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                        style={{ fontFamily: "Jost, sans-serif" }}
                       >
                         {proj.headline}
                       </h4>
