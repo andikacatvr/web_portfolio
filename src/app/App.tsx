@@ -4412,11 +4412,14 @@ export default function App() {
                   {/* WRITINGS / NOTES */}
                   <div>
                     <div className="mb-4 border-t-2 border-b border-black/35 py-2 flex items-center justify-between gap-2">
-                      <h3
-                        className="text-xl md:text-2xl font-black tracking-tight text-black"
-                        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
-                      >
-                        What's Going On? {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
+                      <h3 className="flex items-center gap-2">
+                        <span
+                          className="bg-black text-white text-base md:text-lg font-black tracking-tight px-3 py-1.5 rounded-none inline-block"
+                          style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                        >
+                          What's Going On?
+                        </span>
+                        {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
                       </h3>
                       {isAdminLoggedIn && (
                         <button
