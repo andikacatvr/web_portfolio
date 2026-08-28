@@ -3393,13 +3393,13 @@ export default function App() {
                 <div className="relative w-[280px] sm:w-[320px] bg-black text-white h-full border-r border-white/20 z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
                   {/* Top Sidebar Header */}
                   <div>
-                    <div className="p-4 border-b border-white/20 flex items-center justify-end bg-black text-[#FFCC00]">
+                    <div className="p-4 border-b border-white/20 flex items-center justify-end bg-black text-white">
                       <button
                         onClick={() => setMenuOpen(false)}
-                        className="p-1 hover:bg-gray-800 text-[#FFCC00] cursor-pointer transition-colors"
+                        className="p-1 hover:bg-white/10 text-white hover:text-[#FFCC00] cursor-pointer transition-colors"
                         title="Close Sidebar"
                       >
-                        <X size={18} />
+                        <X size={20} />
                       </button>
                     </div>
 
@@ -3471,21 +3471,23 @@ export default function App() {
                           </button>
                         );
                       })}
+
+                      {/* Print Portfolio (Clean Text Link) */}
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          handlePrint();
+                        }}
+                        className="w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
+                        style={{ fontFamily: "Jost, sans-serif" }}
+                      >
+                        <Printer size={18} /> PRINT PORTFOLIO
+                      </button>
                     </div>
                   </div>
 
                   {/* Sidebar Footer */}
-                  <div className="p-4 border-t border-white/20 bg-black space-y-3">
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        handlePrint();
-                      }}
-                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-3 px-4 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors duration-300 cursor-pointer"
-                      style={{ fontFamily: "Jost, sans-serif" }}
-                    >
-                      <Printer size={14} /> PRINT PORTFOLIO
-                    </button>
+                  <div className="p-4 border-t border-white/20 bg-black">
                     <div className="text-[9px] font-mono text-white/50 text-center uppercase tracking-wider">
                       ANDIKA CATUR ARIANTONO &bull; 2026
                     </div>
