@@ -4411,7 +4411,7 @@ export default function App() {
 
                   {/* WRITINGS / NOTES */}
                   <div>
-                    <div className="mb-4 border-t-[3px] border-b border-black py-2 flex items-center justify-between gap-2">
+                    <div className="mb-4 border-t-2 border-b border-black/35 py-2 flex items-center justify-between gap-2">
                       <h3
                         className="text-xl md:text-2xl font-black tracking-tight text-black"
                         style={{ fontFamily: "'UnifrakturCook', cursive" }}
