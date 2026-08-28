@@ -4649,21 +4649,6 @@ export default function App() {
                         </p>
                       </div>
                     </div>
-
-                    {/* Simbol Kustom Di Bawah Kartu Layanan */}
-                    <div className="flex flex-col items-center mt-3">
-                      <img
-                        src={servicesSymbolImg}
-                        alt="Simbol Keahlian &amp; Layanan"
-                        className="h-8 md:h-10 object-contain"
-                      />
-                      <span
-                        style={{ backgroundColor: "#000000", color: "#FFCC00" }}
-                        className="text-[8px] font-black uppercase bg-black text-[#FFCC00] px-2 py-0.5 mt-1 border border-black"
-                      >
-                        {item.title ? item.title.split(" ")[0] : "SERVICE"}
-                      </span>
-                    </div>
                   </div>
                 ))}
               </div>
