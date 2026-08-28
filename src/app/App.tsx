@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Jost Text with Left-to-Right Yellow Underline on Hover) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text with Tight Left-to-Right Yellow Underline on Hover) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3412,14 +3412,16 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                          activeCategory === "Beranda" && !selectedArticle
-                            ? "text-[#FFCC00] after:scale-x-100"
-                            : "hover:text-[#FFCC00] after:scale-x-0 hover:after:scale-x-100"
-                        }`}
+                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        BERANDA
+                        <span className={`relative inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                          activeCategory === "Beranda" && !selectedArticle
+                            ? "text-[#FFCC00] after:scale-x-100"
+                            : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
+                        }`}>
+                          BERANDA
+                        </span>
                       </button>
 
                       {/* Manage (if Admin) */}
@@ -3431,14 +3433,16 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-[#FFCC00] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                            activeCategory === "Panel Admin" && !selectedArticle
-                              ? "after:scale-x-100"
-                              : "after:scale-x-0 hover:after:scale-x-100"
-                          }`}
+                          className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-[#FFCC00] group"
                           style={{ fontFamily: "Jost, sans-serif" }}
                         >
-                          MANAGE (ADMIN)
+                          <span className={`relative inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                            activeCategory === "Panel Admin" && !selectedArticle
+                              ? "after:scale-x-100"
+                              : "after:scale-x-0 group-hover:after:scale-x-100"
+                          }`}>
+                            MANAGE (ADMIN)
+                          </span>
                         </button>
                       )}
 
@@ -3455,14 +3459,16 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                              isActive
-                                ? "text-[#FFCC00] after:scale-x-100"
-                                : "hover:text-[#FFCC00] after:scale-x-0 hover:after:scale-x-100"
-                            }`}
+                            className="w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
-                            <span>{cat.title}</span>
+                            <span className={`relative inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                              isActive
+                                ? "text-[#FFCC00] after:scale-x-100"
+                                : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
+                            }`}>
+                              {cat.title}
+                            </span>
                           </button>
                         );
                       })}
@@ -3473,10 +3479,12 @@ export default function App() {
                           setMenuOpen(false);
                           handlePrint();
                         }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white hover:text-[#FFCC00] cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white group cursor-pointer"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        PRINT PORTFOLIO
+                        <span className="relative inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                          PRINT PORTFOLIO
+                        </span>
                       </button>
 
                       {/* Subtle Faint White Line */}
@@ -3494,10 +3502,12 @@ export default function App() {
                             }
                           }, 100);
                         }}
-                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white hover:text-[#FFCC00] cursor-pointer text-center tracking-wider relative after:content-[''] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white group cursor-pointer text-center tracking-wider"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        MY PROJECTS
+                        <span className="relative inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                          MY PROJECTS
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -3505,20 +3515,22 @@ export default function App() {
               </div>
             )}
 
-            {/* Desktop Navigation Horizontal Bar (With Left-to-Right Animated Underline on Hover) */}
+            {/* Desktop Navigation Horizontal Bar (With Tight Left-to-Right Animated Underline on Hover) */}
             <div className="hidden lg:flex items-center justify-between">
               <div className="flex items-center gap-0">
                 {/* Desktop Beranda Tab */}
                 <button
                   onClick={() => handleSelectMainCategory("Beranda")}
                   title="Home"
-                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-center cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
-                    activeCategory === "Beranda" && !selectedArticle
-                      ? "after:scale-x-100 font-black"
-                      : "after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                  className="px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-center cursor-pointer text-black group"
                 >
-                  <House size={16} />
+                  <span className={`relative inline-flex items-center after:content-[''] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-[2px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
+                    activeCategory === "Beranda" && !selectedArticle
+                      ? "after:scale-x-100"
+                      : "after:scale-x-0 group-hover:after:scale-x-100"
+                  }`}>
+                    <House size={16} />
+                  </span>
                 </button>
 
                 {/* Permanent Admin Panel Tab when logged in (Solid Black Box) */}
@@ -3529,13 +3541,15 @@ export default function App() {
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer relative bg-black ${
-                      activeCategory === "Panel Admin" && !selectedArticle
-                        ? "text-white font-black after:scale-x-100"
-                        : "text-[#FFCC00] hover:bg-gray-800 after:scale-x-0 hover:after:scale-x-100"
-                    } after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300`}
+                    className="px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer bg-black text-[#FFCC00] hover:bg-gray-800 group"
                   >
-                    <ShieldCheck size={13} /> Manage
+                    <span className={`relative inline-flex items-center gap-1.5 after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                      activeCategory === "Panel Admin" && !selectedArticle
+                        ? "text-white after:scale-x-100"
+                        : "after:scale-x-0 group-hover:after:scale-x-100"
+                    }`}>
+                      <ShieldCheck size={13} /> Manage
+                    </span>
                   </button>
                 )}
 
@@ -3553,15 +3567,17 @@ export default function App() {
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
                         }}
-                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
-                          isMegaOpen || isActive
-                            ? "after:scale-x-100 font-black"
-                            : "after:scale-x-0 hover:after:scale-x-100"
-                        }`}
+                        className="px-4 py-3 text-[11px] font-black tracking-[0.15em] whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer text-black group"
                       >
                         <div className="flex items-center gap-1.5">
                           <IconComponent size={13} />
-                          <span>{cat.title}</span>
+                          <span className={`relative inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-[2px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
+                            isMegaOpen || isActive
+                              ? "after:scale-x-100 font-black"
+                              : "after:scale-x-0 group-hover:after:scale-x-100"
+                          }`}>
+                            {cat.title}
+                          </span>
                         </div>
                         <ChevronDown
                           size={13}
@@ -3585,11 +3601,7 @@ export default function App() {
                         setTimeout(() => searchInputRef.current?.focus(), 100);
                       }
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
-                      isSearchOpen || searchQuery
-                        ? "after:scale-x-100 font-black"
-                        : "after:scale-x-0 hover:after:scale-x-100"
-                    }`}
+                    className="px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer text-black group"
                     title={isSearchOpen ? "Close & Clear Search" : "Search Projects"}
                   >
                     <div className="flex items-center justify-center">
