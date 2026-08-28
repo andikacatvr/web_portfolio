@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Unbolded Jost Text with Smooth Hover to Yellow) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text Only - No Icons) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3412,14 +3412,14 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                        className={`w-full py-2 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                           activeCategory === "Beranda" && !selectedArticle
                             ? "text-[#FFCC00]"
                             : "text-white hover:text-[#FFCC00]"
                         }`}
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <House size={18} /> BERANDA
+                        BERANDA
                       </button>
 
                       {/* Manage (if Admin) */}
@@ -3431,20 +3431,19 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                          className={`w-full py-2 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                             activeCategory === "Panel Admin" && !selectedArticle
                               ? "text-[#FFCC00]"
                               : "text-[#FFCC00]/80 hover:text-[#FFCC00]"
                           }`}
                           style={{ fontFamily: "Jost, sans-serif" }}
                         >
-                          <ShieldCheck size={18} /> MANAGE (ADMIN)
+                          MANAGE (ADMIN)
                         </button>
                       )}
 
                       {/* Categories: Technology, Design, Visuals */}
                       {MAIN_CATEGORIES.map((cat) => {
-                        const IconComponent = cat.icon;
                         const isActive = activeCategory === cat.title && !selectedArticle;
 
                         return (
@@ -3456,14 +3455,13 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                               isActive
                                 ? "text-[#FFCC00]"
                                 : "text-white hover:text-[#FFCC00]"
                             }`}
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
-                            <IconComponent size={18} />
                             <span>{cat.title}</span>
                           </button>
                         );
@@ -3475,10 +3473,10 @@ export default function App() {
                           setMenuOpen(false);
                           handlePrint();
                         }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
+                        className="w-full py-2 text-base font-medium uppercase flex items-center bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <Printer size={18} /> PRINT PORTFOLIO
+                        PRINT PORTFOLIO
                       </button>
 
                       {/* Subtle Faint White Line */}
@@ -3496,10 +3494,10 @@ export default function App() {
                             }
                           }, 100);
                         }}
-                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center gap-1.5 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center tracking-wider"
+                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center tracking-wider"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <FolderGit2 size={14} /> MY PROJECTS
+                        MY PROJECTS
                       </button>
                     </div>
                   </div>
