@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Jost Text with Centered 50% Yellow Underline on Hover) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text with Left-Aligned 50% Yellow Underline on Hover) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3415,7 +3415,7 @@ export default function App() {
                         className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
+                        <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                           activeCategory === "Beranda" && !selectedArticle
                             ? "text-[#FFCC00] after:scale-x-100"
                             : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
@@ -3436,7 +3436,7 @@ export default function App() {
                           className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-[#FFCC00] group"
                           style={{ fontFamily: "Jost, sans-serif" }}
                         >
-                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
+                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                             activeCategory === "Panel Admin" && !selectedArticle
                               ? "after:scale-x-100"
                               : "after:scale-x-0 group-hover:after:scale-x-100"
@@ -3462,7 +3462,7 @@ export default function App() {
                             className="w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
-                            <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:transition-transform after:duration-300 ${
+                            <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                               isActive
                                 ? "text-[#FFCC00] after:scale-x-100"
                                 : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
@@ -3482,7 +3482,7 @@ export default function App() {
                         className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white group cursor-pointer"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
                           PRINT PORTFOLIO
                         </span>
                       </button>
