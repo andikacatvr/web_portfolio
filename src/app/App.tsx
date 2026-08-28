@@ -4414,7 +4414,7 @@ export default function App() {
                     <div className="mb-4 border-t-2 border-b border-black/35 py-2 flex items-center justify-between gap-2">
                       <h3
                         className="text-xl md:text-2xl font-black tracking-tight text-black"
-                        style={{ fontFamily: "'UnifrakturCook', cursive" }}
+                        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                       >
                         What's Going On? {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
                       </h3>
