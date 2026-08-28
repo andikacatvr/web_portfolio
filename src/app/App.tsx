@@ -4413,10 +4413,10 @@ export default function App() {
                   <div>
                     <div className="mb-4 border-t-[3px] border-b border-black py-2 flex items-center justify-between gap-2">
                       <h3
-                        className="text-lg md:text-xl font-black uppercase tracking-tight text-black"
+                        className="text-lg md:text-xl font-black tracking-tight text-black"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
-                        NOTES {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
+                        What's Going On? {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
                       </h3>
                       {isAdminLoggedIn && (
                         <button
@@ -4433,7 +4433,7 @@ export default function App() {
                     <div className="space-y-4 max-h-[250px] overflow-y-auto pr-3 custom-scrollbar border-b border-black/10">
                       {writings.map((op: any) => (
                         <div key={op.id} className="border-b border-black/20 pb-4">
-                          <h4 className="text-base font-black leading-tight mb-2 uppercase" style={{ fontFamily: "Jost, sans-serif" }}>
+                          <h4 className="text-base font-black leading-tight mb-2" style={{ fontFamily: "Jost, sans-serif" }}>
                             {op.title}
                           </h4>
                           <p className="text-xs text-black/70 italic font-serif leading-relaxed" style={{ fontFamily: "Jost, sans-serif" }}>
