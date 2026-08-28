@@ -4494,7 +4494,7 @@ export default function App() {
               <div>
                 <h3
                   className="text-xl md:text-2xl font-black uppercase tracking-tight text-white"
-                  style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                  style={{ fontFamily: "Jost, sans-serif" }}
                 >
                   {activeCategory === "Beranda"
                     ? "FEATURED PROJECTS"
