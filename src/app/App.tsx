@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Jost Text Only - No Icons) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text with Left-to-Right Yellow Underline on Hover) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3412,10 +3412,10 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full py-2 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                        className={`w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                           activeCategory === "Beranda" && !selectedArticle
-                            ? "text-[#FFCC00]"
-                            : "text-white hover:text-[#FFCC00]"
+                            ? "text-[#FFCC00] after:scale-x-100"
+                            : "hover:text-[#FFCC00] after:scale-x-0 hover:after:scale-x-100"
                         }`}
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
@@ -3431,10 +3431,10 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full py-2 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                          className={`w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-[#FFCC00] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                             activeCategory === "Panel Admin" && !selectedArticle
-                              ? "text-[#FFCC00]"
-                              : "text-[#FFCC00]/80 hover:text-[#FFCC00]"
+                              ? "after:scale-x-100"
+                              : "after:scale-x-0 hover:after:scale-x-100"
                           }`}
                           style={{ fontFamily: "Jost, sans-serif" }}
                         >
@@ -3455,10 +3455,10 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
                               isActive
-                                ? "text-[#FFCC00]"
-                                : "text-white hover:text-[#FFCC00]"
+                                ? "text-[#FFCC00] after:scale-x-100"
+                                : "hover:text-[#FFCC00] after:scale-x-0 hover:after:scale-x-100"
                             }`}
                             style={{ fontFamily: "Jost, sans-serif" }}
                           >
@@ -3473,7 +3473,7 @@ export default function App() {
                           setMenuOpen(false);
                           handlePrint();
                         }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
+                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white hover:text-[#FFCC00] cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
                         PRINT PORTFOLIO
@@ -3494,7 +3494,7 @@ export default function App() {
                             }
                           }, 100);
                         }}
-                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center tracking-wider"
+                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white hover:text-[#FFCC00] cursor-pointer text-center tracking-wider relative after:content-[''] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
                         MY PROJECTS
@@ -3505,17 +3505,17 @@ export default function App() {
               </div>
             )}
 
-            {/* Desktop Navigation Horizontal Bar */}
+            {/* Desktop Navigation Horizontal Bar (With Left-to-Right Animated Underline on Hover) */}
             <div className="hidden lg:flex items-center justify-between">
               <div className="flex items-center gap-0">
                 {/* Desktop Beranda Tab */}
                 <button
                   onClick={() => handleSelectMainCategory("Beranda")}
                   title="Home"
-                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap flex items-center justify-center cursor-pointer ${
+                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-center cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
                     activeCategory === "Beranda" && !selectedArticle
-                      ? "text-white font-black"
-                      : "text-black hover:text-white"
+                      ? "after:scale-x-100 font-black"
+                      : "after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   <House size={16} />
@@ -3529,11 +3529,11 @@ export default function App() {
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer relative bg-black ${
                       activeCategory === "Panel Admin" && !selectedArticle
-                        ? "bg-black text-white font-black"
-                        : "bg-black text-[#FFCC00] hover:bg-gray-800"
-                    }`}
+                        ? "text-white font-black after:scale-x-100"
+                        : "text-[#FFCC00] hover:bg-gray-800 after:scale-x-0 hover:after:scale-x-100"
+                    } after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300`}
                   >
                     <ShieldCheck size={13} /> Manage
                   </button>
@@ -3553,10 +3553,10 @@ export default function App() {
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
                         }}
-                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors duration-300 whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${
+                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
                           isMegaOpen || isActive
-                            ? "text-white font-black underline underline-offset-4 decoration-2"
-                            : "text-black hover:text-white"
+                            ? "after:scale-x-100 font-black"
+                            : "after:scale-x-0 hover:after:scale-x-100"
                         }`}
                       >
                         <div className="flex items-center gap-1.5">
@@ -3585,10 +3585,10 @@ export default function App() {
                         setTimeout(() => searchInputRef.current?.focus(), 100);
                       }
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer relative text-black after:content-[''] after:absolute after:bottom-1.5 after:left-3 after:right-3 after:h-[2.5px] after:bg-black after:origin-left after:transition-transform after:duration-300 ${
                       isSearchOpen || searchQuery
-                        ? "text-white font-black"
-                        : "text-black hover:text-white"
+                        ? "after:scale-x-100 font-black"
+                        : "after:scale-x-0 hover:after:scale-x-100"
                     }`}
                     title={isSearchOpen ? "Close & Clear Search" : "Search Projects"}
                   >
