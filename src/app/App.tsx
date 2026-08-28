@@ -4413,8 +4413,8 @@ export default function App() {
                   <div>
                     <div className="mb-4 border-t-[3px] border-b border-black py-2 flex items-center justify-between gap-2">
                       <h3
-                        className="text-lg md:text-xl font-black tracking-tight text-black"
-                        style={{ fontFamily: "Jost, sans-serif" }}
+                        className="text-xl md:text-2xl font-black tracking-tight text-black"
+                        style={{ fontFamily: "'UnifrakturCook', cursive" }}
                       >
                         What's Going On? {writings.length > 0 && <span className="text-xs text-black/50 font-sans ml-1">({writings.length})</span>}
                       </h3>
