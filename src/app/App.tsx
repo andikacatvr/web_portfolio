@@ -4547,8 +4547,8 @@ export default function App() {
 
                       {/* Lead Image Block */}
                       {heroPortfolio.image && (
-                        <div className="mb-6 border-2 border-black p-2 bg-gray-50 rounded-none">
-                          <div className="overflow-hidden aspect-[16/10] bg-gray-200 border border-black/30 rounded-none">
+                        <div className="mb-6">
+                          <div className="overflow-hidden aspect-[16/10] bg-gray-200 rounded-none">
                             <img
                               src={heroPortfolio.image}
                               alt="Main Summary Cover"
