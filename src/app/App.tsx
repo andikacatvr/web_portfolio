@@ -3521,7 +3521,7 @@ export default function App() {
                   <House size={16} />
                 </button>
 
-                {/* Permanent Admin Panel Tab when logged in */}
+                {/* Permanent Admin Panel Tab when logged in (Solid Black Box) */}
                 {isAdminLoggedIn && (
                   <button
                     onClick={() => {
@@ -3529,10 +3529,10 @@ export default function App() {
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors duration-300 whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                       activeCategory === "Panel Admin" && !selectedArticle
-                        ? "text-white font-black"
-                        : "text-black hover:text-white"
+                        ? "bg-black text-white font-black"
+                        : "bg-black text-[#FFCC00] hover:bg-gray-800"
                     }`}
                   >
                     <ShieldCheck size={13} /> Manage
