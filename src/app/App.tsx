@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Jost Text with Smooth Hover to Yellow) */}
+                    {/* Navigation Links inside Sidebar (Clean Unbolded Jost Text with Smooth Hover to Yellow) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3412,7 +3412,7 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                        className={`w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                           activeCategory === "Beranda" && !selectedArticle
                             ? "text-[#FFCC00]"
                             : "text-white hover:text-[#FFCC00]"
@@ -3431,7 +3431,7 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
+                          className={`w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                             activeCategory === "Panel Admin" && !selectedArticle
                               ? "text-[#FFCC00]"
                               : "text-[#FFCC00]/80 hover:text-[#FFCC00]"
@@ -3456,7 +3456,7 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-black uppercase flex items-center justify-between bg-transparent transition-colors duration-500 ease-in-out cursor-pointer group ${
+                            className={`w-full py-2.5 text-base font-medium uppercase flex items-center justify-between bg-transparent transition-colors duration-500 ease-in-out cursor-pointer group ${
                               isActive
                                 ? "text-[#FFCC00]"
                                 : "text-white hover:text-[#FFCC00]"
@@ -3478,10 +3478,31 @@ export default function App() {
                           setMenuOpen(false);
                           handlePrint();
                         }}
-                        className="w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
+                        className="w-full py-2 text-base font-medium uppercase flex items-center gap-3 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer"
                         style={{ fontFamily: "Jost, sans-serif" }}
                       >
                         <Printer size={18} /> PRINT PORTFOLIO
+                      </button>
+
+                      {/* Subtle Faint White Line */}
+                      <div className="border-t border-white/20 pt-2 my-1" />
+
+                      {/* MY PROJECTS (Centered Text Button) */}
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          handleSelectMainCategory("Beranda");
+                          setTimeout(() => {
+                            const projSec = document.getElementById("featured-projects-section");
+                            if (projSec) {
+                              projSec.scrollIntoView({ behavior: "smooth" });
+                            }
+                          }, 100);
+                        }}
+                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-center gap-2 bg-transparent text-white hover:text-[#FFCC00] transition-colors duration-500 ease-in-out cursor-pointer text-center"
+                        style={{ fontFamily: "Jost, sans-serif" }}
+                      >
+                        <FolderGit2 size={18} /> MY PROJECTS
                       </button>
                     </div>
                   </div>
@@ -4716,7 +4737,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="mb-6 border-b-2 border-white/20 pb-3 flex flex-wrap items-center justify-between gap-2">
+            <div id="featured-projects-section" className="mb-6 border-b-2 border-white/20 pb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h3
                   className="text-xl md:text-2xl font-black uppercase tracking-tight text-white"
