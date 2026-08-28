@@ -4468,7 +4468,10 @@ export default function App() {
           )}
 
           {/* FEATURED PROJECTS SECTION CONTAINER WITH NATGEO YELLOW BACKGROUND & COLORFUL SOLID CARDS */}
-          <section className="bg-[#FFCC00] text-black p-6 sm:p-8 md:p-10 my-8 rounded-none">
+          <section
+            style={{ backgroundColor: "#FFCC00", color: "#000000" }}
+            className="bg-[#FFCC00] text-black border-2 border-black p-6 sm:p-8 md:p-10 my-8 rounded-none"
+          >
             {/* Banner Indikator Pencarian (jika ada query pencarian) */}
             {searchQuery.trim() !== "" && (
               <div className="mb-6 bg-black text-white p-3.5 border-2 border-black flex flex-wrap items-center justify-between gap-2 text-xs rounded-none shadow-[3px_3px_0px_0px_rgba(255,204,0,1)]">
@@ -4598,7 +4601,7 @@ export default function App() {
             )}
           </section>
 
-          {/* SERVICES & OFFERINGS (SOLID BLACK CARDS WITH UNIFORM SIZE, BONE WHITE TEXT & SYNCHRONIZED WALKING STICKMEN) */}
+          {/* SERVICES & OFFERINGS (SOLID YELLOW CARDS WITH UNIFORM SIZE, BLACK TEXT & SYNCHRONIZED WALKING STICKMEN) */}
           <section className="pt-4 pb-12">
             <div className="mb-6">
               <div className="border-t-2 border-b-2 border-black py-2 flex items-center justify-between gap-2">
@@ -4622,36 +4625,43 @@ export default function App() {
               </div>
             </div>
 
-            <div className="overflow-hidden border-2 border-black bg-gray-50 py-6 my-4 select-none">
+            <div className="border-2 border-black p-6 bg-white overflow-hidden my-4 select-none">
               <div className="animate-marquee flex gap-6">
                 {[...services, ...services, ...services].map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center flex-shrink-0">
-                    {/* The Solid Black Card with Uniform Width & Height */}
+                    {/* Solid Yellow Card with Uniform Width & Height */}
                     <div
-                      className="w-[300px] sm:w-[350px] h-[190px] sm:h-[200px] bg-black text-[#FAF8F5] border-2 border-black p-5 rounded-none flex flex-col justify-between hover:scale-[1.02] transition-transform"
+                      style={{ backgroundColor: "#FFCC00", color: "#000000" }}
+                      className="w-[300px] sm:w-[350px] h-[190px] sm:h-[200px] bg-[#FFCC00] text-black p-5 rounded-none flex flex-col justify-between hover:scale-[1.02] transition-transform border-2 border-black"
                     >
                       <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest bg-[#FFCC00] text-black px-2.5 py-1 inline-block mb-3">
-                          SERVICE #{(idx % services.length) + 1}
+                        <span
+                          style={{ backgroundColor: "#FFFFFF", color: "#000000" }}
+                          className="text-[9px] font-black uppercase tracking-widest bg-white text-black px-2.5 py-1 inline-block mb-3 border border-black"
+                        >
+                          SERVICE &bull; {(idx % services.length) + 1}
                         </span>
-                        <h4 className="text-sm font-black uppercase tracking-wider mb-2 text-[#FAF8F5]" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
+                        <h4 className="text-sm font-black uppercase tracking-wider mb-2 text-black" style={{ fontFamily: "Playfair Display, Georgia, serif" }}>
                           {item.title}
                         </h4>
-                        <p className="text-xs text-[#E8E4D9] font-serif leading-relaxed line-clamp-4" style={{ fontFamily: "Jost, sans-serif" }}>
+                        <p className="text-xs text-black/90 font-serif leading-relaxed line-clamp-4" style={{ fontFamily: "Jost, sans-serif" }}>
                           {item.desc}
                         </p>
                       </div>
                     </div>
 
                     {/* Simbol Kustom Di Bawah Kartu Layanan */}
-                    <div className="flex flex-col items-center mt-2">
+                    <div className="flex flex-col items-center mt-3">
                       <img
                         src={servicesSymbolImg}
                         alt="Simbol Keahlian &amp; Layanan"
-                        className="h-10 md:h-12 object-contain"
+                        className="h-8 md:h-10 object-contain"
                       />
-                      <span className="text-[8px] font-black uppercase bg-black text-[#FFCC00] px-1.5 py-0.5 mt-1 border border-black">
-                        {item.title.split(" ")[0]}
+                      <span
+                        style={{ backgroundColor: "#000000", color: "#FFCC00" }}
+                        className="text-[8px] font-black uppercase bg-black text-[#FFCC00] px-2 py-0.5 mt-1 border border-black"
+                      >
+                        {item.title ? item.title.split(" ")[0] : "SERVICE"}
                       </span>
                     </div>
                   </div>
