@@ -3512,8 +3512,11 @@ export default function App() {
                 <button
                   onClick={() => handleSelectMainCategory("Beranda")}
                   title="Home"
-                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors whitespace-nowrap border-b-0 flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "text-black hover:bg-black/10"
-                    }`}
+                  className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap flex items-center justify-center cursor-pointer ${
+                    activeCategory === "Beranda" && !selectedArticle
+                      ? "text-white font-black"
+                      : "text-black hover:text-white"
+                  }`}
                 >
                   <House size={16} />
                 </button>
@@ -3526,8 +3529,11 @@ export default function App() {
                       setSelectedArticle(null);
                       setOpenMegaMenuId(null);
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors whitespace-nowrap border-b-0 flex items-center gap-1.5 ${activeCategory === "Panel Admin" && !selectedArticle ? "bg-[#F2F2F2] text-black shadow-sm font-black" : "bg-black text-[#FFCC00] hover:bg-gray-800"
-                      }`}
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors duration-300 whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                      activeCategory === "Panel Admin" && !selectedArticle
+                        ? "text-white font-black"
+                        : "text-black hover:text-white"
+                    }`}
                   >
                     <ShieldCheck size={13} /> Manage
                   </button>
@@ -3547,12 +3553,11 @@ export default function App() {
                           setActiveCategory(cat.title);
                           setSelectedArticle(null);
                         }}
-                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-all whitespace-nowrap flex items-center justify-start gap-1.5 ${isMegaOpen
-                          ? "bg-[#F2F2F2] text-black font-black underline underline-offset-4 decoration-2 shadow-sm"
-                          : isActive
-                            ? "bg-[#F2F2F2] text-black font-black shadow-sm"
-                            : "text-black hover:bg-black/10"
-                          }`}
+                        className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] transition-colors duration-300 whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${
+                          isMegaOpen || isActive
+                            ? "text-white font-black underline underline-offset-4 decoration-2"
+                            : "text-black hover:text-white"
+                        }`}
                       >
                         <div className="flex items-center gap-1.5">
                           <IconComponent size={13} />
@@ -3560,7 +3565,7 @@ export default function App() {
                         </div>
                         <ChevronDown
                           size={13}
-                          className={`transition-transform duration-300 ${isMegaOpen ? "rotate-180 text-black" : "text-black"}`}
+                          className={`transition-transform duration-300 ${isMegaOpen ? "rotate-180" : ""}`}
                         />
                       </button>
                     </div>
@@ -3580,10 +3585,11 @@ export default function App() {
                         setTimeout(() => searchInputRef.current?.focus(), 100);
                       }
                     }}
-                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-all whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${isSearchOpen || searchQuery
-                      ? "bg-[#F2F2F2] text-black font-black shadow-sm"
-                      : "text-black hover:bg-black/10"
-                      }`}
+                    className={`px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer ${
+                      isSearchOpen || searchQuery
+                        ? "text-white font-black"
+                        : "text-black hover:text-white"
+                    }`}
                     title={isSearchOpen ? "Close & Clear Search" : "Search Projects"}
                   >
                     <div className="flex items-center justify-center">
