@@ -3389,11 +3389,11 @@ export default function App() {
                   onClick={() => setMenuOpen(false)}
                 />
 
-                {/* Left Sidebar Content Drawer */}
-                <div className="relative w-[280px] sm:w-[320px] bg-[#FFCC00] text-black h-full border-r-2 border-black z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
+                {/* Left Sidebar Content Drawer (Solid Black Theme) */}
+                <div className="relative w-[280px] sm:w-[320px] bg-black text-white h-full border-r border-white/20 z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
                   {/* Top Sidebar Header */}
                   <div>
-                    <div className="p-4 border-b-2 border-black flex items-center justify-between bg-black text-[#FFCC00]">
+                    <div className="p-4 border-b border-white/20 flex items-center justify-between bg-black text-[#FFCC00]">
                       <div className="flex items-center gap-2">
                         <Menu size={16} />
                         <span className="font-black text-xs uppercase tracking-widest">NAVIGATION</span>
@@ -3416,10 +3416,10 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border-2 border-black transition-all ${
+                        className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border transition-all ${
                           activeCategory === "Beranda" && !selectedArticle
-                            ? "bg-black text-white"
-                            : "bg-white text-black hover:bg-black/10"
+                            ? "bg-[#FFCC00] text-black border-[#FFCC00]"
+                            : "bg-gray-950 text-white border-white/15 hover:bg-gray-900"
                         }`}
                       >
                         <House size={16} /> BERANDA
@@ -3434,10 +3434,10 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border-2 border-black transition-all ${
+                          className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border transition-all ${
                             activeCategory === "Panel Admin" && !selectedArticle
-                              ? "bg-black text-[#FFCC00]"
-                              : "bg-black text-[#FFCC00] hover:bg-gray-900"
+                              ? "bg-[#FFCC00] text-black border-[#FFCC00]"
+                              : "bg-[#FFCC00]/20 text-[#FFCC00] border-[#FFCC00]/40 hover:bg-[#FFCC00]/30"
                           }`}
                         >
                           <ShieldCheck size={16} /> MANAGE (ADMIN)
@@ -3458,10 +3458,10 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full px-4 py-3.5 text-xs font-black tracking-widest uppercase flex items-center justify-between border-2 border-black transition-all ${
+                            className={`w-full px-4 py-3.5 text-xs font-black tracking-widest uppercase flex items-center justify-between border transition-all ${
                               isActive
-                                ? "bg-black text-white"
-                                : "bg-white text-black hover:bg-black/10"
+                                ? "bg-[#FFCC00] text-black border-[#FFCC00]"
+                                : "bg-gray-950 text-white border-white/15 hover:bg-gray-900"
                             }`}
                           >
                             <div className="flex items-center gap-3">
@@ -3476,17 +3476,17 @@ export default function App() {
                   </div>
 
                   {/* Sidebar Footer */}
-                  <div className="p-4 border-t-2 border-black bg-black/5 space-y-3">
+                  <div className="p-4 border-t border-white/20 bg-black space-y-3">
                     <button
                       onClick={() => {
                         setMenuOpen(false);
                         handlePrint();
                       }}
-                      className="w-full bg-black text-[#FFCC00] font-black text-xs uppercase py-2.5 px-3 border-2 border-black flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors cursor-pointer"
+                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-2.5 px-3 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors cursor-pointer"
                     >
                       <Printer size={14} /> PRINT PORTFOLIO
                     </button>
-                    <div className="text-[9px] font-mono text-black/60 text-center uppercase tracking-wider">
+                    <div className="text-[9px] font-mono text-white/50 text-center uppercase tracking-wider">
                       ANDIKA CATUR ARIANTONO &bull; 2026
                     </div>
                   </div>
