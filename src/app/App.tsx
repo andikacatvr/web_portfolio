@@ -3266,49 +3266,119 @@ export default function App() {
       <div ref={navContainerRef} className="relative z-50">
         <nav className="bg-[#FFCC00] text-black sticky top-0 border-b-2 border-black font-black shadow-md">
           <div className="max-w-[1240px] mx-auto px-4">
-            {/* Mobile Top Navbar Bar (Hamburger, Home, Search) */}
-            <div className="flex lg:hidden items-center justify-between py-2 text-black font-black">
-              {/* 1. Hamburger Menu Button */}
-              <button
-                className="p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
-                onClick={() => setMenuOpen(!menuOpen)}
-                title={menuOpen ? "Close Sidebar Menu" : "Open Sidebar Menu"}
-              >
-                {menuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-
-              {/* 2. Home Button */}
-              <button
-                onClick={() => {
-                  handleSelectMainCategory("Beranda");
-                  setMenuOpen(false);
-                  setOpenMegaMenuId(null);
-                }}
-                className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-black/15" : ""}`}
-                title="Home"
-              >
-                <House size={20} />
-              </button>
-
-              {/* 3. Search Button */}
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  if (isSearchOpen) {
+            {/* Mobile Top Navbar Bar (Hamburger + Home on Left, Search & Inline Input Bar on Right) */}
+            <div className="flex lg:hidden items-center justify-between py-1.5 text-black font-black relative">
+              {/* Left Side: Hamburger + Home side by side */}
+              <div className="flex items-center gap-1">
+                {/* 1. Hamburger Menu Button */}
+                <button
+                  className="p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                  onClick={() => {
+                    setMenuOpen(!menuOpen);
                     setIsSearchOpen(false);
-                    setSearchQuery("");
-                  } else {
-                    setIsSearchOpen(true);
+                  }}
+                  title={menuOpen ? "Close Sidebar Menu" : "Open Sidebar Menu"}
+                >
+                  {menuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+
+                {/* 2. Home Button (Side-by-side with Hamburger) */}
+                <button
+                  onClick={() => {
+                    handleSelectMainCategory("Beranda");
+                    setMenuOpen(false);
                     setOpenMegaMenuId(null);
-                    setTimeout(() => searchInputRef.current?.focus(), 100);
-                  }
-                }}
-                className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${isSearchOpen || searchQuery ? "bg-black/15" : ""}`}
-                title={isSearchOpen ? "Close Search" : "Search Projects"}
-              >
-                <Search size={20} />
-              </button>
+                    setIsSearchOpen(false);
+                  }}
+                  className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${activeCategory === "Beranda" && !selectedArticle ? "bg-black/15" : ""}`}
+                  title="Home"
+                >
+                  <House size={20} />
+                </button>
+              </div>
+
+              {/* Right Side: Search Button & Expandable Inline Input Bar */}
+              <div className="flex items-center gap-1 flex-1 justify-end max-w-[70%]">
+                {isSearchOpen ? (
+                  <div className="flex items-center gap-1.5 bg-white border-2 border-black px-2 py-1 w-full animate-in fade-in slide-in-from-right-2 duration-150">
+                    <Search size={14} className="text-black/60 flex-shrink-0" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder="what are you looking for?"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          setIsSearchOpen(false);
+                          setSearchQuery("");
+                        }
+                      }}
+                      className="w-full bg-transparent text-xs font-bold text-black focus:outline-none placeholder:text-black/40"
+                    />
+                    <button
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery("");
+                      }}
+                      className="p-0.5 hover:bg-gray-200 text-black/60 hover:text-black cursor-pointer transition-colors flex-shrink-0"
+                      title="Close Search"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setIsSearchOpen(true);
+                      setOpenMegaMenuId(null);
+                      setTimeout(() => searchInputRef.current?.focus(), 100);
+                    }}
+                    className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${isSearchOpen || searchQuery ? "bg-black/15" : ""}`}
+                    title="Search Projects"
+                  >
+                    <Search size={20} />
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* Mobile Live Search Results Dropdown */}
+            {isSearchOpen && searchQuery.trim() !== "" && (
+              <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b-2 border-black p-3 z-50 shadow-lg max-h-[300px] overflow-y-auto space-y-1">
+                <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
+                  SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
+                </div>
+                {projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 ? (
+                  <p className="text-[11px] font-serif italic text-black/60 py-2 text-center">
+                    No projects match "{searchQuery}".
+                  </p>
+                ) : (
+                  projects
+                    .filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase()))
+                    .slice(0, 6)
+                    .map((p) => (
+                      <div
+                        key={p.id}
+                        onClick={() => {
+                          setSelectedArticle(p);
+                          setIsSearchOpen(false);
+                        }}
+                        className="p-1.5 hover:bg-yellow-100 border border-transparent hover:border-black transition-colors cursor-pointer flex items-center gap-2 rounded-none"
+                      >
+                        {p.image && (
+                          <img src={p.image} alt={p.headline || p.title} className="w-8 h-8 object-cover border border-black/30 flex-shrink-0" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <h5 className="text-[11px] font-black truncate leading-tight">{p.headline || p.title}</h5>
+                          <span className="text-[8px] font-bold uppercase text-black/60 block">{p.subCategory}</span>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
 
             {/* Navigation Menu (Mobile Sidebar Dropdown & Desktop Bar) */}
             <div className="flex items-center justify-between">
