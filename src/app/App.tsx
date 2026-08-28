@@ -3590,18 +3590,9 @@ export default function App() {
 
               </div>
 
-              {/* Right Side: PRINT PORTFOLIO & SEARCH Button with Inline Search Column */}
+              {/* Right Side: SEARCH Button with Inline Search Column (LEFT) & PRINT PORTFOLIO Button (RIGHT) */}
               <div className="flex items-center gap-2 ml-auto lg:ml-0 py-1.5 relative">
-                {/* 1. PRINT PORTFOLIO Button */}
-                <button
-                  onClick={handlePrint}
-                  className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0"
-                  title="Print Portfolio View"
-                >
-                  <Printer size={12} /> <span className="hidden sm:inline">PRINT PORTFOLIO</span>
-                </button>
-
-                {/* 2. SEARCH Button & Inline Search Column right next to Print Portfolio */}
+                {/* 1. SEARCH Button & Inline Search Column (on the LEFT side of Print Portfolio) */}
                 <div className="relative">
                   {isSearchOpen ? (
                     <div className="flex items-center gap-1.5 bg-white border border-black px-2 py-1 w-[200px] sm:w-[240px] animate-in fade-in slide-in-from-right-2 duration-150">
@@ -3647,7 +3638,7 @@ export default function App() {
 
                   {/* Live Search Results Popover Dropdown */}
                   {isSearchOpen && searchQuery.trim() !== "" && (
-                    <div className="absolute top-full right-0 w-[280px] sm:w-[320px] bg-white border-2 border-black p-3 z-50 shadow-xl max-h-[300px] overflow-y-auto space-y-1 mt-1 rounded-none">
+                    <div className="absolute top-full left-0 w-[280px] sm:w-[320px] bg-white border-2 border-black p-3 z-50 shadow-xl max-h-[300px] overflow-y-auto space-y-1 mt-1 rounded-none">
                       <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
                         SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
                       </div>
@@ -3681,6 +3672,15 @@ export default function App() {
                     </div>
                   )}
                 </div>
+
+                {/* 2. PRINT PORTFOLIO Button (on the RIGHT side of Search) */}
+                <button
+                  onClick={handlePrint}
+                  className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0"
+                  title="Print Portfolio View"
+                >
+                  <Printer size={12} /> <span className="hidden sm:inline">PRINT PORTFOLIO</span>
+                </button>
               </div>
             </div>
           </div>
