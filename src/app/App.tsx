@@ -3403,8 +3403,8 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar */}
-                    <div className="p-3 space-y-2">
+                    {/* Navigation Links inside Sidebar (Clean Text Only with Playfair Display) */}
+                    <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
                         onClick={() => {
@@ -3412,13 +3412,14 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border transition-all ${
+                        className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-all cursor-pointer ${
                           activeCategory === "Beranda" && !selectedArticle
-                            ? "bg-[#FFCC00] text-black border-[#FFCC00]"
-                            : "bg-gray-950 text-white border-white/15 hover:bg-gray-900"
+                            ? "text-[#FFCC00]"
+                            : "text-white hover:text-[#FFCC00]"
                         }`}
+                        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                       >
-                        <House size={16} /> BERANDA
+                        <House size={18} /> BERANDA
                       </button>
 
                       {/* Manage (if Admin) */}
@@ -3430,13 +3431,14 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full px-4 py-3 text-xs font-black tracking-widest uppercase flex items-center gap-3 border transition-all ${
+                          className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-all cursor-pointer ${
                             activeCategory === "Panel Admin" && !selectedArticle
-                              ? "bg-[#FFCC00] text-black border-[#FFCC00]"
-                              : "bg-[#FFCC00]/20 text-[#FFCC00] border-[#FFCC00]/40 hover:bg-[#FFCC00]/30"
+                              ? "text-[#FFCC00]"
+                              : "text-[#FFCC00]/80 hover:text-[#FFCC00]"
                           }`}
+                          style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                         >
-                          <ShieldCheck size={16} /> MANAGE (ADMIN)
+                          <ShieldCheck size={18} /> MANAGE (ADMIN)
                         </button>
                       )}
 
@@ -3454,17 +3456,18 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full px-4 py-3.5 text-xs font-black tracking-widest uppercase flex items-center justify-between border transition-all ${
+                            className={`w-full py-2.5 text-base font-black uppercase flex items-center justify-between bg-transparent transition-all cursor-pointer ${
                               isActive
-                                ? "bg-[#FFCC00] text-black border-[#FFCC00]"
-                                : "bg-gray-950 text-white border-white/15 hover:bg-gray-900"
+                                ? "text-[#FFCC00]"
+                                : "text-white hover:text-[#FFCC00]"
                             }`}
+                            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                           >
                             <div className="flex items-center gap-3">
-                              <IconComponent size={16} />
+                              <IconComponent size={18} />
                               <span>{cat.title}</span>
                             </div>
-                            <ChevronDown size={14} className="-rotate-90" />
+                            <ChevronDown size={14} className="-rotate-90 text-white/50" />
                           </button>
                         );
                       })}
@@ -3478,7 +3481,8 @@ export default function App() {
                         setMenuOpen(false);
                         handlePrint();
                       }}
-                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-2.5 px-3 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors cursor-pointer"
+                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-3 px-4 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors cursor-pointer"
+                      style={{ fontFamily: "Playfair Display, Georgia, serif" }}
                     >
                       <Printer size={14} /> PRINT PORTFOLIO
                     </button>
