@@ -3393,7 +3393,7 @@ export default function App() {
                 <div className="relative w-[280px] sm:w-[320px] bg-black text-white h-full border-r border-white/20 z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
                   {/* Top Sidebar Header */}
                   <div>
-                    <div className="p-4 border-b border-white/20 flex items-center justify-end bg-black text-white">
+                    <div className="p-4 flex items-center justify-end bg-black text-white">
                       <button
                         onClick={() => setMenuOpen(false)}
                         className="p-1 hover:bg-white/10 text-white hover:text-[#FFCC00] cursor-pointer transition-colors"
