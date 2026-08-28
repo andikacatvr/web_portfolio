@@ -4414,8 +4414,8 @@ export default function App() {
                     <div className="mb-4 border-t-2 border-b border-black/35 py-2 flex items-center justify-between gap-2">
                       <h3 className="flex items-center gap-2">
                         <span
-                          className="bg-black text-white text-xs md:text-sm font-black tracking-tight px-2.5 py-1 rounded-none inline-block"
-                          style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                          className="bg-black text-white text-xs md:text-sm font-black italic tracking-tight px-2.5 py-1 rounded-none inline-block"
+                          style={{ fontFamily: "Playfair Display, Georgia, serif", fontStyle: "italic" }}
                         >
                           What's Going On?
                         </span>
