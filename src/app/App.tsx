@@ -3403,7 +3403,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Navigation Links inside Sidebar (Clean Text Only with Playfair Display) */}
+                    {/* Navigation Links inside Sidebar (Clean Jost Text with Smooth Hover to Yellow) */}
                     <div className="p-5 space-y-4">
                       {/* Beranda */}
                       <button
@@ -3412,12 +3412,12 @@ export default function App() {
                           setMenuOpen(false);
                           setOpenMegaMenuId(null);
                         }}
-                        className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-all cursor-pointer ${
+                        className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                           activeCategory === "Beranda" && !selectedArticle
                             ? "text-[#FFCC00]"
                             : "text-white hover:text-[#FFCC00]"
                         }`}
-                        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                        style={{ fontFamily: "Jost, sans-serif" }}
                       >
                         <House size={18} /> BERANDA
                       </button>
@@ -3431,12 +3431,12 @@ export default function App() {
                             setOpenMegaMenuId(null);
                             setMenuOpen(false);
                           }}
-                          className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-all cursor-pointer ${
+                          className={`w-full py-2 text-base font-black uppercase flex items-center gap-3 bg-transparent transition-colors duration-500 ease-in-out cursor-pointer ${
                             activeCategory === "Panel Admin" && !selectedArticle
                               ? "text-[#FFCC00]"
                               : "text-[#FFCC00]/80 hover:text-[#FFCC00]"
                           }`}
-                          style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                          style={{ fontFamily: "Jost, sans-serif" }}
                         >
                           <ShieldCheck size={18} /> MANAGE (ADMIN)
                         </button>
@@ -3456,18 +3456,18 @@ export default function App() {
                               setSelectedArticle(null);
                               setMenuOpen(false);
                             }}
-                            className={`w-full py-2.5 text-base font-black uppercase flex items-center justify-between bg-transparent transition-all cursor-pointer ${
+                            className={`w-full py-2.5 text-base font-black uppercase flex items-center justify-between bg-transparent transition-colors duration-500 ease-in-out cursor-pointer group ${
                               isActive
                                 ? "text-[#FFCC00]"
                                 : "text-white hover:text-[#FFCC00]"
                             }`}
-                            style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                            style={{ fontFamily: "Jost, sans-serif" }}
                           >
                             <div className="flex items-center gap-3">
                               <IconComponent size={18} />
                               <span>{cat.title}</span>
                             </div>
-                            <ChevronDown size={14} className="-rotate-90 text-white/50" />
+                            <ChevronDown size={14} className="-rotate-90 text-white/50 group-hover:text-[#FFCC00] transition-colors duration-500" />
                           </button>
                         );
                       })}
@@ -3481,8 +3481,8 @@ export default function App() {
                         setMenuOpen(false);
                         handlePrint();
                       }}
-                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-3 px-4 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors cursor-pointer"
-                      style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+                      className="w-full bg-[#FFCC00] text-black font-black text-xs uppercase py-3 px-4 border border-[#FFCC00] flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors duration-300 cursor-pointer"
+                      style={{ fontFamily: "Jost, sans-serif" }}
                     >
                       <Printer size={14} /> PRINT PORTFOLIO
                     </button>
