@@ -3503,13 +3503,6 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Sidebar Footer */}
-                  <div className="p-4 border-t border-white/20 bg-black">
-                    <div className="text-[9px] font-mono text-white/50 text-center uppercase tracking-wider">
-                      ANDIKA CATUR ARIANTONO &bull; 2026
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
