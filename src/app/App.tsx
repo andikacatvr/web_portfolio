@@ -3588,111 +3588,99 @@ export default function App() {
                   );
                 })}
 
-                {/* Desktop Search Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      if (isSearchOpen) {
-                        setIsSearchOpen(false);
-                        setSearchQuery("");
-                      } else {
-                        setIsSearchOpen(true);
-                        setOpenMegaMenuId(null);
-                        setTimeout(() => searchInputRef.current?.focus(), 100);
-                      }
-                    }}
-                    className="px-4 py-3 text-[11px] font-black tracking-[0.15em] uppercase whitespace-nowrap flex items-center justify-start gap-1.5 cursor-pointer text-black group"
-                    title={isSearchOpen ? "Close & Clear Search" : "Search Projects"}
-                  >
-                    <div className="flex items-center justify-center">
-                      {isSearchOpen ? <X size={15} /> : <Search size={15} />}
-                    </div>
-                    {searchQuery && (
-                      <span className="bg-black text-[#FFCC00] text-[8px] px-1.5 py-0.5 font-black uppercase rounded-none ml-1">
-                        ACTIVE
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Popover Input Pencarian & Live Results Dropdown */}
-                  {isSearchOpen && (
-                    <div className="absolute top-full left-0 lg:left-0 right-0 lg:w-[340px] sm:w-[360px] bg-white border-2 border-black p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 rounded-none">
-                      <div className="flex items-center gap-2 border-2 border-black p-1 bg-gray-50">
-                        <Search size={14} className="text-black/60 ml-1 flex-shrink-0" />
-                        <input
-                          ref={searchInputRef}
-                          type="text"
-                          placeholder="what are you looking for?"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Escape") {
-                              setIsSearchOpen(false);
-                              setSearchQuery("");
-                            }
-                          }}
-                          className="w-full bg-transparent text-xs font-bold p-1 text-black focus:outline-none placeholder:text-black/40"
-                        />
-                        <button
-                          onClick={() => {
-                            setIsSearchOpen(false);
-                            setSearchQuery("");
-                          }}
-                          className="p-1 hover:bg-gray-200 text-black/60 hover:text-black cursor-pointer transition-colors"
-                          title="Close Search & Clear Input"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-
-                      {searchQuery.trim() !== "" && (
-                        <div className="mt-2 pt-2 border-t border-black/20 max-h-[260px] overflow-y-auto space-y-1">
-                          <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
-                            SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
-                          </div>
-                          {projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 ? (
-                            <p className="text-[11px] font-serif italic text-black/60 py-2 text-center">
-                              No projects match "{searchQuery}".
-                            </p>
-                          ) : (
-                            projects
-                              .filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase()))
-                              .slice(0, 6)
-                              .map((p) => (
-                                <div
-                                  key={p.id}
-                                  onClick={() => {
-                                    setSelectedArticle(p);
-                                    setIsSearchOpen(false);
-                                  }}
-                                  className="p-1.5 hover:bg-yellow-100 border border-transparent hover:border-black transition-colors cursor-pointer flex items-center gap-2 rounded-none"
-                                >
-                                  {p.image && (
-                                    <img src={p.image} alt={p.headline || p.title} className="w-8 h-8 object-cover border border-black/30 flex-shrink-0" />
-                                  )}
-                                  <div className="min-w-0 flex-1">
-                                    <h5 className="text-[11px] font-black truncate leading-tight">{p.headline || p.title}</h5>
-                                    <span className="text-[8px] font-bold uppercase text-black/60 block">{p.subCategory}</span>
-                                  </div>
-                                </div>
-                              ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
               </div>
 
-              <div className="flex items-center gap-3 ml-auto lg:ml-0 py-2">
+              {/* Right Side: PRINT PORTFOLIO & SEARCH Button with Inline Search Column */}
+              <div className="flex items-center gap-2 ml-auto lg:ml-0 py-1.5 relative">
+                {/* 1. PRINT PORTFOLIO Button */}
                 <button
                   onClick={handlePrint}
-                  className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none"
+                  className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0"
                   title="Print Portfolio View"
                 >
                   <Printer size={12} /> <span className="hidden sm:inline">PRINT PORTFOLIO</span>
                 </button>
+
+                {/* 2. SEARCH Button & Inline Search Column right next to Print Portfolio */}
+                <div className="relative">
+                  {isSearchOpen ? (
+                    <div className="flex items-center gap-1.5 bg-white border border-black px-2 py-1 w-[200px] sm:w-[240px] animate-in fade-in slide-in-from-right-2 duration-150">
+                      <Search size={13} className="text-black/60 flex-shrink-0" />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="what are you looking for?"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") {
+                            setIsSearchOpen(false);
+                            setSearchQuery("");
+                          }
+                        }}
+                        className="w-full bg-transparent text-xs font-bold text-black focus:outline-none placeholder:text-black/40"
+                      />
+                      <button
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          setSearchQuery("");
+                        }}
+                        className="p-0.5 hover:bg-gray-200 text-black/60 hover:text-black cursor-pointer transition-colors flex-shrink-0"
+                        title="Close Search"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsSearchOpen(true);
+                        setOpenMegaMenuId(null);
+                        setTimeout(() => searchInputRef.current?.focus(), 100);
+                      }}
+                      className="text-[10px] font-black uppercase tracking-wider text-black hover:bg-black hover:text-[#FFCC00] border border-black px-3 py-1.5 flex items-center gap-1.5 transition-colors rounded-none cursor-pointer flex-shrink-0"
+                      title="Search Projects"
+                    >
+                      <Search size={12} /> <span className="hidden sm:inline">SEARCH</span>
+                    </button>
+                  )}
+
+                  {/* Live Search Results Popover Dropdown */}
+                  {isSearchOpen && searchQuery.trim() !== "" && (
+                    <div className="absolute top-full right-0 w-[280px] sm:w-[320px] bg-white border-2 border-black p-3 z-50 shadow-xl max-h-[300px] overflow-y-auto space-y-1 mt-1 rounded-none">
+                      <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
+                        SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
+                      </div>
+                      {projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 ? (
+                        <p className="text-[11px] font-serif italic text-black/60 py-2 text-center">
+                          No projects match "{searchQuery}".
+                        </p>
+                      ) : (
+                        projects
+                          .filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase()))
+                          .slice(0, 6)
+                          .map((p) => (
+                            <div
+                              key={p.id}
+                              onClick={() => {
+                                setSelectedArticle(p);
+                                setIsSearchOpen(false);
+                              }}
+                              className="p-1.5 hover:bg-yellow-100 border border-transparent hover:border-black transition-colors cursor-pointer flex items-center gap-2 rounded-none"
+                            >
+                              {p.image && (
+                                <img src={p.image} alt={p.headline || p.title} className="w-8 h-8 object-cover border border-black/30 flex-shrink-0" />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <h5 className="text-[11px] font-black truncate leading-tight">{p.headline || p.title}</h5>
+                                <span className="text-[8px] font-bold uppercase text-black/60 block">{p.subCategory}</span>
+                              </div>
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
