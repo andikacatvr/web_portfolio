@@ -4593,14 +4593,14 @@ export default function App() {
                       )}
 
 
-                      {/* 3 Creep Images in Center below Read Full Profile (Touching Side-by-Side) */}
-                      <div className="mt-4 flex items-center justify-center gap-0 pt-1">
-                        {[1, 2, 3].map((idx) => (
+                      {/* 5 Creep Images in Center below Read Full Profile (Touching Side-by-Side) */}
+                      <div className="mt-4 flex items-center justify-center gap-0 pt-1 flex-wrap sm:flex-nowrap">
+                        {[1, 2, 3, 4, 5].map((idx) => (
                           <img
                             key={idx}
                             src={creepImg}
                             alt={`Creep Illustration ${idx}`}
-                            className="max-h-[90px] md:max-h-[120px] w-auto object-contain cursor-pointer hover:scale-110 hover:z-10 transition-transform duration-300 -mr-2 last:mr-0"
+                            className="max-h-[75px] md:max-h-[105px] w-auto object-contain cursor-pointer hover:scale-110 hover:z-10 transition-transform duration-300 -mr-2 last:mr-0"
                             onClick={() => setSelectedArticle(heroPortfolio)}
                           />
                         ))}
