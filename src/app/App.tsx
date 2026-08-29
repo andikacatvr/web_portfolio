@@ -4593,12 +4593,12 @@ export default function App() {
                       )}
 
 
-                      {/* Creep Image in Center below Read Full Profile (Smaller Compact Size) */}
-                      <div className="mt-6 flex flex-col items-center justify-center text-center pt-2">
+                      {/* Creep Image in Center below Read Full Profile (Extra Compact Size) */}
+                      <div className="mt-4 flex flex-col items-center justify-center text-center pt-1">
                         <img
                           src={creepImg}
                           alt="Creep Illustration"
-                          className="max-h-[180px] md:max-h-[220px] w-auto object-contain cursor-pointer hover:scale-[1.03] transition-transform duration-300 mx-auto"
+                          className="max-h-[100px] md:max-h-[130px] w-auto object-contain cursor-pointer hover:scale-[1.05] transition-transform duration-300 mx-auto"
                           onClick={() => setSelectedArticle(heroPortfolio)}
                         />
                       </div>
