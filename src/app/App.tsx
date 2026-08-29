@@ -4593,8 +4593,8 @@ export default function App() {
                       )}
 
 
-                      {/* 5 Creep Images in Center below Read Full Profile (Touching Side-by-Side) */}
-                      <div className="mt-4 flex items-center justify-center gap-0 pt-1 flex-wrap sm:flex-nowrap">
+                      {/* 5 Creep Images in Center below Read Full Profile (Spaced Down Appropriately) */}
+                      <div className="mt-12 pt-4 flex items-center justify-center gap-0 flex-wrap sm:flex-nowrap">
                         {[1, 2, 3, 4, 5].map((idx) => (
                           <img
                             key={idx}
