@@ -61,6 +61,7 @@ import stickmanImg from "../imports/Untitled_design__13_.png";
 import nycSkylineImg from "../../gambar/nyc_skyline.png";
 import headerLogoImg from "../../gambar/andika's+webportfolio.svg";
 import servicesSymbolImg from "../../gambar/services_symbol.png";
+import creepImg from "../../gambar/creep (2).png";
 import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
 import {
   fetchProjectsFromSupabase,
@@ -4592,6 +4593,15 @@ export default function App() {
                       )}
 
 
+                      {/* Creep Image in Center below Read Full Profile */}
+                      <div className="mt-8 flex flex-col items-center justify-center text-center pt-4">
+                        <img
+                          src={creepImg}
+                          alt="Creep Illustration"
+                          className="max-h-[340px] md:max-h-[420px] w-auto object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-300 mx-auto"
+                          onClick={() => setSelectedArticle(heroPortfolio)}
+                        />
+                      </div>
                     </>
                   )}
 
