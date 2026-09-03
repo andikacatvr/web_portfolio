@@ -96,15 +96,16 @@ const formatCategoryBadge = (cat: string): string => {
 const MONTH_NAMES_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTH_NAMES_FULL = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
-const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear: string = "AUGUST 2026"): Date => {
+const parseEventDate = (evtDate: any, fallbackDay: number, fallbackMonthYear?: string): Date => {
   if (evtDate && typeof evtDate === "string" && evtDate.includes("-")) {
     const parts = evtDate.split("-").map(Number);
     if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
       return new Date(parts[0], parts[1] - 1, parts[2]);
     }
   }
-  let y = 2026;
-  let m = 7; // August 0-indexed
+  const now = new Date();
+  let y = now.getFullYear();
+  let m = now.getMonth();
   if (fallbackMonthYear) {
     const matchY = String(fallbackMonthYear).match(/\d{4}/);
     if (matchY) y = parseInt(matchY[0], 10);
@@ -1250,35 +1251,25 @@ export default function App() {
     setTimeout(() => setSavedToast(null), 3000);
   };
 
-  // Dynamic Default events list for calendar
+  // Dynamic calendar events list
   const currentNow = new Date();
   const curY = currentNow.getFullYear();
   const curM = String(currentNow.getMonth() + 1).padStart(2, "0");
   const currentMonthYearStr = `${MONTH_NAMES_FULL[currentNow.getMonth()]} ${curY}`;
 
-  const DEFAULT_CALENDAR_EVENTS = [
-    {
-      id: "evt-1",
-      startDate: `${curY}-${curM}-01`,
-      endDate: `${curY}-${curM}-05`,
-      title: "",
-      status: "SIBUK"
-    },
-    {
-      id: "evt-2",
-      startDate: `${curY}-${curM}-08`,
-      endDate: `${curY}-${curM}-18`,
-      title: "",
-      status: "TERISI"
-    },
-    {
-      id: "evt-3",
-      startDate: `${curY}-${curM}-19`,
-      endDate: `${curY}-${curM}-31`,
-      title: "",
-      status: "TERBUKA"
-    }
-  ];
+  const cleanCalendarEvents = (events: any[]): any[] => {
+    if (!Array.isArray(events)) return [];
+    return events.filter((evt: any) => {
+      if (!evt || typeof evt !== "object") return false;
+      // Filter out legacy dummy template events (id evt-1/2/3 with empty title)
+      if ((evt.id === "evt-1" || evt.id === "evt-2" || evt.id === "evt-3") && (!evt.title || evt.title.trim() === "")) {
+        return false;
+      }
+      return Boolean(evt.startDate);
+    });
+  };
+
+  const DEFAULT_CALENDAR_EVENTS: any[] = [];
 
   // Calendar Status State with localStorage Persistence (Admin Editable)
   const [calendarStatus, setCalendarStatus] = useState<any>(() => {
@@ -1287,18 +1278,8 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === "object") {
-          if (!parsed.monthYear || parsed.monthYear !== currentMonthYearStr) {
-            parsed.monthYear = currentMonthYearStr;
-            parsed.events = DEFAULT_CALENDAR_EVENTS;
-          }
-          if (!parsed.events || !Array.isArray(parsed.events)) {
-            parsed.events = DEFAULT_CALENDAR_EVENTS;
-          } else {
-            parsed.events = parsed.events.map((evt: any) => ({
-              ...evt,
-              title: evt.title && evt.title.includes("Hackathon") ? "" : (evt.title || "")
-            }));
-          }
+          parsed.monthYear = currentMonthYearStr;
+          parsed.events = cleanCalendarEvents(parsed.events);
           return parsed;
         }
       }
@@ -1308,7 +1289,7 @@ export default function App() {
     return {
       monthYear: currentMonthYearStr,
       statusNote: "Slot jadwal terbuka untuk pengerjaan proyek baru.",
-      events: DEFAULT_CALENDAR_EVENTS
+      events: []
     };
   });
 
@@ -1517,7 +1498,15 @@ export default function App() {
   useEffect(() => {
     fetchSiteSettingFromSupabase("hero").then(val => { if (val) setHeroPortfolio(val); });
     fetchSiteSettingFromSupabase("dev_profile").then(val => { if (val) setDevProfile(val); });
-    fetchSiteSettingFromSupabase("calendar").then(val => { if (val) setCalendarStatus(val); });
+    fetchSiteSettingFromSupabase("calendar").then(val => {
+      if (val && typeof val === "object") {
+        setCalendarStatus({
+          monthYear: currentMonthYearStr,
+          statusNote: val.statusNote || "Slot jadwal terbuka untuk pengerjaan proyek baru.",
+          events: cleanCalendarEvents(val.events)
+        });
+      }
+    });
     fetchSiteSettingFromSupabase("writings").then(val => { if (val) setWritings(val); });
     fetchSiteSettingFromSupabase("services").then(val => { if (val) setServices(val); });
     fetchSiteSettingFromSupabase("tools_tech").then(val => { if (val) setSectorTools(val); });
@@ -1525,7 +1514,15 @@ export default function App() {
 
     const unSubHero = subscribeToSiteSettingsRealtime("hero", setHeroPortfolio);
     const unSubDev = subscribeToSiteSettingsRealtime("dev_profile", setDevProfile);
-    const unSubCal = subscribeToSiteSettingsRealtime("calendar", setCalendarStatus);
+    const unSubCal = subscribeToSiteSettingsRealtime("calendar", (val) => {
+      if (val && typeof val === "object") {
+        setCalendarStatus({
+          monthYear: currentMonthYearStr,
+          statusNote: val.statusNote || "Slot jadwal terbuka untuk pengerjaan proyek baru.",
+          events: cleanCalendarEvents(val.events)
+        });
+      }
+    });
     const unSubWritings = subscribeToSiteSettingsRealtime("writings", setWritings);
     const unSubServices = subscribeToSiteSettingsRealtime("services", setServices);
     const unSubTools = subscribeToSiteSettingsRealtime("tools_tech", setSectorTools);
@@ -1805,6 +1802,8 @@ export default function App() {
       setOpenMegaMenuId(null);
     } else {
       setOpenMegaMenuId(catId);
+      setMenuOpen(false);
+      setIsSearchOpen(false);
     }
   };
 
@@ -3275,8 +3274,14 @@ export default function App() {
                 <button
                   className="p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                   onClick={() => {
-                    setMenuOpen(!menuOpen);
-                    setIsSearchOpen(false);
+                    setMenuOpen(prev => {
+                      const next = !prev;
+                      if (next) {
+                        setOpenMegaMenuId(null);
+                        setIsSearchOpen(false);
+                      }
+                      return next;
+                    });
                   }}
                   title={menuOpen ? "Close Sidebar Menu" : "Open Sidebar Menu"}
                 >
@@ -3298,223 +3303,88 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Right Side: Search Button & Expandable Inline Input Bar */}
-              <div className="flex items-center gap-1 flex-1 justify-end max-w-[70%]">
-                {isSearchOpen ? (
-                  <div className="flex items-center gap-1.5 bg-white border-2 border-black px-2 py-1 w-full animate-in fade-in slide-in-from-right-2 duration-150">
-                    <Search size={14} className="text-black/60 flex-shrink-0" />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder="what are you looking for?"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                          setIsSearchOpen(false);
-                          setSearchQuery("");
-                        }
-                      }}
-                      className="w-full bg-transparent text-xs font-bold text-black focus:outline-none placeholder:text-black/40"
-                    />
-                    <button
-                      onClick={() => {
+            {/* Right Side: Search Button & Expandable Inline Input Bar */}
+            <div className="flex items-center gap-1 flex-1 justify-end max-w-[70%]">
+              {isSearchOpen ? (
+                <div className="flex items-center gap-1.5 bg-white border-2 border-black px-2 py-1 w-full animate-in fade-in slide-in-from-right-2 duration-150">
+                  <Search size={14} className="text-black/60 flex-shrink-0" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="what are you looking for?"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
                         setIsSearchOpen(false);
                         setSearchQuery("");
-                      }}
-                      className="p-0.5 hover:bg-gray-200 text-black/60 hover:text-black cursor-pointer transition-colors flex-shrink-0"
-                      title="Close Search"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ) : (
+                      }
+                    }}
+                    className="w-full bg-transparent text-xs font-bold text-black focus:outline-none placeholder:text-black/40"
+                  />
                   <button
                     onClick={() => {
-                      setMenuOpen(false);
-                      setIsSearchOpen(true);
-                      setOpenMegaMenuId(null);
-                      setTimeout(() => searchInputRef.current?.focus(), 100);
+                      setIsSearchOpen(false);
+                      setSearchQuery("");
                     }}
-                    className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${isSearchOpen || searchQuery ? "bg-black/15" : ""}`}
-                    title="Search Projects"
+                    className="p-0.5 hover:bg-gray-200 text-black/60 hover:text-black cursor-pointer transition-colors flex-shrink-0"
+                    title="Close Search"
                   >
-                    <Search size={20} />
+                    <X size={14} />
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setIsSearchOpen(true);
+                    setOpenMegaMenuId(null);
+                    setTimeout(() => searchInputRef.current?.focus(), 100);
+                  }}
+                  className={`p-2 text-black hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center ${isSearchOpen || searchQuery ? "bg-black/15" : ""}`}
+                  title="Search Projects"
+                >
+                  <Search size={20} />
+                </button>
+              )}
             </div>
+          </div>
 
-            {/* Mobile Live Search Results Dropdown */}
-            {isSearchOpen && searchQuery.trim() !== "" && (
-              <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b-2 border-black p-3 z-50 shadow-lg max-h-[300px] overflow-y-auto space-y-1">
-                <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
-                  SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
-                </div>
-                {projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 ? (
-                  <p className="text-[11px] font-serif italic text-black/60 py-2 text-center">
-                    No projects match "{searchQuery}".
-                  </p>
-                ) : (
-                  projects
-                    .filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase()))
-                    .slice(0, 6)
-                    .map((p) => (
-                      <div
-                        key={p.id}
-                        onClick={() => {
-                          setSelectedArticle(p);
-                          setIsSearchOpen(false);
-                        }}
-                        className="p-1.5 hover:bg-yellow-100 border border-transparent hover:border-black transition-colors cursor-pointer flex items-center gap-2 rounded-none"
-                      >
-                        {p.image && (
-                          <img src={p.image} alt={p.headline || p.title} className="w-8 h-8 object-cover border border-black/30 flex-shrink-0" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <h5 className="text-[11px] font-black truncate leading-tight">{p.headline || p.title}</h5>
-                          <span className="text-[8px] font-bold uppercase text-black/60 block">{p.subCategory}</span>
-                        </div>
-                      </div>
-                    ))
-                )}
+          {/* Mobile Live Search Results Dropdown */}
+          {isSearchOpen && searchQuery.trim() !== "" && (
+            <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b-2 border-black p-3 z-50 shadow-lg max-h-[300px] overflow-y-auto space-y-1">
+              <div className="text-[9px] font-black uppercase text-black/50 tracking-wider mb-1">
+                SEARCH RESULTS ({projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length})
               </div>
-            )}
-
-            {/* MOBILE SLIDE-OVER LEFT SIDEBAR DRAWER */}
-            {menuOpen && (
-              <div className="lg:hidden fixed inset-0 z-[100] flex">
-                {/* Dark Backdrop Overlay */}
-                <div
-                  className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
-                  onClick={() => setMenuOpen(false)}
-                />
-
-                {/* Left Sidebar Content Drawer (Solid Black Theme) */}
-                <div className="relative w-[280px] sm:w-[320px] bg-black text-white h-full border-r border-white/20 z-[101] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
-                  {/* Top Sidebar Header */}
-                  <div>
-                    <div className="p-4 flex items-center justify-end bg-black text-white">
-                      <button
-                        onClick={() => setMenuOpen(false)}
-                        className="p-1 hover:bg-white/10 text-white hover:text-[#FFCC00] cursor-pointer transition-colors"
-                        title="Close Sidebar"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-
-                    {/* Navigation Links inside Sidebar (Clean Jost Text with Left-Aligned 50% Yellow Underline on Hover) */}
-                    <div className="p-5 space-y-4">
-                      {/* Beranda */}
-                      <button
-                        onClick={() => {
-                          handleSelectMainCategory("Beranda");
-                          setMenuOpen(false);
-                          setOpenMegaMenuId(null);
-                        }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
-                        style={{ fontFamily: "Jost, sans-serif" }}
-                      >
-                        <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                          activeCategory === "Beranda" && !selectedArticle
-                            ? "text-[#FFCC00] after:scale-x-100"
-                            : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
-                        }`}>
-                          BERANDA
-                        </span>
-                      </button>
-
-                      {/* Manage (if Admin) */}
-                      {isAdminLoggedIn && (
-                        <button
-                          onClick={() => {
-                            setActiveCategory("Panel Admin");
-                            setSelectedArticle(null);
-                            setOpenMegaMenuId(null);
-                            setMenuOpen(false);
-                          }}
-                          className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-[#FFCC00] group"
-                          style={{ fontFamily: "Jost, sans-serif" }}
-                        >
-                          <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                            activeCategory === "Panel Admin" && !selectedArticle
-                              ? "after:scale-x-100"
-                              : "after:scale-x-0 group-hover:after:scale-x-100"
-                          }`}>
-                            MANAGE (ADMIN)
-                          </span>
-                        </button>
+              {projects.filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 ? (
+                <p className="text-[11px] font-serif italic text-black/60 py-2 text-center">
+                  No projects match "{searchQuery}".
+                </p>
+              ) : (
+                projects
+                  .filter(p => (p.headline || p.title || "").toLowerCase().includes(searchQuery.trim().toLowerCase()))
+                  .slice(0, 6)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        setSelectedArticle(p);
+                        setIsSearchOpen(false);
+                      }}
+                      className="p-1.5 hover:bg-yellow-100 border border-transparent hover:border-black transition-colors cursor-pointer flex items-center gap-2 rounded-none"
+                    >
+                      {p.image && (
+                        <img src={p.image} alt={p.headline || p.title} className="w-8 h-8 object-cover border border-black/30 flex-shrink-0" />
                       )}
-
-                      {/* Categories: Technology, Design, Visuals */}
-                      {MAIN_CATEGORIES.map((cat) => {
-                        const isActive = activeCategory === cat.title && !selectedArticle;
-
-                        return (
-                          <button
-                            key={cat.id}
-                            onClick={() => {
-                              handleToggleMegaMenu(cat.id);
-                              setActiveCategory(cat.title);
-                              setSelectedArticle(null);
-                              setMenuOpen(false);
-                            }}
-                            className="w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
-                            style={{ fontFamily: "Jost, sans-serif" }}
-                          >
-                            <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
-                              isActive
-                                ? "text-[#FFCC00] after:scale-x-100"
-                                : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
-                            }`}>
-                              {cat.title}
-                            </span>
-                          </button>
-                        );
-                      })}
-
-                      {/* Print Portfolio (Clean Text Link) */}
-                      <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          handlePrint();
-                        }}
-                        className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white group cursor-pointer"
-                        style={{ fontFamily: "Jost, sans-serif" }}
-                      >
-                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
-                          PRINT PORTFOLIO
-                        </span>
-                      </button>
-
-                      {/* Subtle Faint White Line */}
-                      <div className="border-t border-white/20 pt-2 my-1" />
-
-                      {/* MY PROJECTS (Centered Text Button - Smaller Size) */}
-                      <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          handleSelectMainCategory("Beranda");
-                          setTimeout(() => {
-                            const projSec = document.getElementById("featured-projects-section");
-                            if (projSec) {
-                              projSec.scrollIntoView({ behavior: "smooth" });
-                            }
-                          }, 100);
-                        }}
-                        className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white group cursor-pointer text-center tracking-wider"
-                        style={{ fontFamily: "Jost, sans-serif" }}
-                      >
-                        <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
-                          MY PROJECTS
-                        </span>
-                      </button>
+                      <div className="min-w-0 flex-1">
+                        <h5 className="text-[11px] font-black truncate leading-tight">{p.headline || p.title}</h5>
+                        <span className="text-[8px] font-bold uppercase text-black/60 block">{p.subCategory}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                  ))
+              )}
+            </div>
+          )}
 
             {/* Desktop Navigation Horizontal Bar (With Centered 50% Animated Underline on Hover) */}
             <div className="hidden lg:flex items-center justify-between">
@@ -3690,9 +3560,9 @@ export default function App() {
           </div>
         </nav>
 
-        {/* NEW YORK TIMES-STYLE MEGA DROPDOWN PANEL */}
-        {activeMegaMenuCatObj && (
-          <div className="absolute top-full left-0 right-0 bg-[#F2F2F2] border-b-2 border-black shadow-[0px_10px_30px_rgba(0,0,0,0.25)] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        {/* NEW YORK TIMES-STYLE MEGA DROPDOWN PANEL (Desktop Only) */}
+        {!menuOpen && activeMegaMenuCatObj && (
+          <div className="hidden lg:block absolute top-full left-0 right-0 bg-[#F2F2F2] border-b-2 border-black shadow-[0px_10px_30px_rgba(0,0,0,0.25)] z-40 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="max-w-[1240px] mx-auto p-6 md:p-8">
               {/* Header Bar inside Mega Menu */}
               <div className="border-b-2 border-black pb-3 mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -3840,6 +3710,140 @@ export default function App() {
         )}
 
       </div>
+
+      {/* MOBILE SLIDE-OVER LEFT SIDEBAR DRAWER (Root Level Overlay z-[9999]) */}
+      {menuOpen && (
+        <div className="lg:hidden fixed inset-0 z-[9999] flex">
+          {/* Dark Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 z-[9999]"
+            onClick={() => setMenuOpen(false)}
+          />
+
+          {/* Left Sidebar Content Drawer (Solid Black Theme) */}
+          <div className="relative w-[280px] sm:w-[320px] bg-black text-white h-full border-r border-white/20 z-[10000] shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-300 overflow-y-auto">
+            {/* Top Sidebar Header */}
+            <div>
+              <div className="p-4 flex items-center justify-end bg-black text-white">
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="p-1 hover:bg-white/10 text-white hover:text-[#FFCC00] cursor-pointer transition-colors"
+                  title="Close Sidebar"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Navigation Links inside Sidebar (Clean Jost Text with Left-Aligned 50% Yellow Underline on Hover) */}
+              <div className="p-5 space-y-4">
+                {/* Beranda */}
+                <button
+                  onClick={() => {
+                    handleSelectMainCategory("Beranda");
+                    setMenuOpen(false);
+                    setOpenMegaMenuId(null);
+                  }}
+                  className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
+                  style={{ fontFamily: "Jost, sans-serif" }}
+                >
+                  <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                    activeCategory === "Beranda" && !selectedArticle
+                      ? "text-[#FFCC00] after:scale-x-100"
+                      : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
+                  }`}>
+                    BERANDA
+                  </span>
+                </button>
+
+                {/* Manage (if Admin) */}
+                {isAdminLoggedIn && (
+                  <button
+                    onClick={() => {
+                      setActiveCategory("Panel Admin");
+                      setSelectedArticle(null);
+                      setOpenMegaMenuId(null);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-[#FFCC00] group"
+                    style={{ fontFamily: "Jost, sans-serif" }}
+                  >
+                    <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                      activeCategory === "Panel Admin" && !selectedArticle
+                        ? "after:scale-x-100"
+                        : "after:scale-x-0 group-hover:after:scale-x-100"
+                    }`}>
+                      MANAGE (ADMIN)
+                    </span>
+                  </button>
+                )}
+
+                {/* Categories: Technology, Design, Visuals */}
+                {MAIN_CATEGORIES.map((cat) => {
+                  const isActive = activeCategory === cat.title && !selectedArticle;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        handleSelectMainCategory(cat.title, "SEMUA");
+                        setMenuOpen(false);
+                        setOpenMegaMenuId(null);
+                      }}
+                      className="w-full py-2.5 text-base font-medium uppercase flex items-center justify-start bg-transparent cursor-pointer text-white group"
+                      style={{ fontFamily: "Jost, sans-serif" }}
+                    >
+                      <span className={`relative w-fit inline-block after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:transition-transform after:duration-300 ${
+                        isActive
+                          ? "text-[#FFCC00] after:scale-x-100"
+                          : "group-hover:text-[#FFCC00] after:scale-x-0 group-hover:after:scale-x-100"
+                      }`}>
+                        {cat.title}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {/* Print Portfolio (Clean Text Link) */}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handlePrint();
+                  }}
+                  className="w-full py-2 text-base font-medium uppercase flex items-center justify-start bg-transparent text-white group cursor-pointer"
+                  style={{ fontFamily: "Jost, sans-serif" }}
+                >
+                  <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                    PRINT PORTFOLIO
+                  </span>
+                </button>
+
+                {/* Subtle Faint White Line */}
+                <div className="border-t border-white/20 pt-2 my-1" />
+
+                {/* MY PROJECTS (Centered Text Button - Smaller Size) */}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleSelectMainCategory("Beranda");
+                    setTimeout(() => {
+                      const projSec = document.getElementById("featured-projects-section");
+                      if (projSec) {
+                        projSec.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }, 100);
+                  }}
+                  className="w-full py-1.5 text-xs font-medium uppercase flex items-center justify-center bg-transparent text-white group cursor-pointer text-center tracking-wider"
+                  style={{ fontFamily: "Jost, sans-serif" }}
+                >
+                  <span className="relative w-fit inline-block group-hover:text-[#FFCC00] after:content-[''] after:absolute after:-bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-[50%] after:h-[2px] after:bg-[#FFCC00] after:origin-center after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-300">
+                    MY PROJECTS
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* PANEL ADMIN PAGE VIEW */}
       {activeCategory === "Panel Admin" ? (
