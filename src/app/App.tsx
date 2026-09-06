@@ -61,7 +61,6 @@ import stickmanImg from "../imports/Untitled_design__13_.png";
 import nycSkylineImg from "../../gambar/nyc_skyline.png";
 import headerLogoImg from "../../gambar/andika's+webportfolio.svg";
 import servicesSymbolImg from "../../gambar/services_symbol.png";
-import creepImg from "../../gambar/creep (2).png";
 import { PrintPortfolioModal } from "./components/PrintPortfolioModal";
 import {
   fetchProjectsFromSupabase,
@@ -1251,6 +1250,141 @@ export default function App() {
     setTimeout(() => setSavedToast(null), 3000);
   };
 
+  // Editorial Ribbon State (NYTimes-style "Our Best Advice" - Admin Editable)
+  const [editorialRibbon, setEditorialRibbon] = useState<{
+    title: string;
+    items: Array<{
+      headline: string;
+      tag: string;
+      description?: string;
+      fullContent?: string;
+      linkUrl?: string;
+      imageUrl?: string;
+      hideDetailPhoto?: boolean;
+    }>;
+  }>(() => {
+    try {
+      const saved = localStorage.getItem("andika_editorial_ribbon");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object" && Array.isArray(parsed.items)) {
+          if (parsed.items[1] && parsed.items[1].hideDetailPhoto === undefined) {
+            parsed.items[1].hideDetailPhoto = true;
+          }
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Gagal membaca editorialRibbon dari localStorage", e);
+    }
+    return {
+      title: "Our Best Advice",
+      items: [
+        {
+          headline: "Sign Up for the Good Advice & Design Dispatch",
+          tag: "NEWSLETTER",
+          description: "Wawasan berkala seputar filosofi desain, visual craft, dan eksplorasi tipografi editorial.",
+          fullContent: "Selamat datang di buletin editorial kreatif Andika Catur Ariantono.\n\nDi era digital yang serba cepat, kami percaya bahwa desain yang berkarakter membutuhkan perhatian mendalam terhadap detail—mulai dari pilihan tipografi, keharmonisan ruang kosong (whitespace), hingga interaksi mikro yang memanjakan mata tanpa mengorbankan kenyamanan pembaca.\n\nMelalui rubrik ini, kami membagikan catatan berkala mengenai studi kasus UI/UX, eksplorasi grafis bertema editorial surat kabar kontemporer, serta panduan praktis dalam menyusun arsitektur visual antarmuka web.\n\nMari terus berdiskusi dan berkarya bersama!",
+          linkUrl: "",
+          imageUrl: "",
+          hideDetailPhoto: false
+        },
+        {
+          headline: "Why Thoughtful Interaction Design Defines Digital Elegance",
+          tag: "2 MIN READ",
+          description: "Membahas bagaimana micro-interactions dan hierarki visual menghidupkan karya web modern.",
+          fullContent: "Desain yang baik bukan sekadar tentang seberapa banyak animasi yang ditampilkan, melainkan tentang bagaimana setiap elemen merespons kebutuhan pengguna secara anggun dan fungsional.\n\nKetika pengguna mengarahkan kursor atau berinteraksi dengan sebuah komponen, respons visual yang halus—seperti transisi batas garis tegas, pergantian kontras warna yang terukur, dan hierarki teks yang disiplin—mampu menciptakan rasa kepastian dan kepuasan interaksi yang tenang.\n\nDalam lanskap desain modern, kemewahan sejati sering kali hadir dalam bentuk kesederhanaan yang terencana (restraint). Ketika kita menghilangkan elemen yang berlebihan, esensi cerita dan pesan utama karya dapat terpancar seutuhnya.",
+          linkUrl: "",
+          imageUrl: "",
+          hideDetailPhoto: true
+        }
+      ]
+    };
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("andika_editorial_ribbon", JSON.stringify(editorialRibbon));
+    } catch (e) {
+      console.error("Gagal menyimpan editorialRibbon ke localStorage", e);
+    }
+  }, [editorialRibbon]);
+
+  const [showEditorialRibbonModal, setShowEditorialRibbonModal] = useState(false);
+  const [editorialRibbonModalTab, setEditorialRibbonModalTab] = useState<"col1" | "col2">("col1");
+  const [editorialRibbonForm, setEditorialRibbonForm] = useState(editorialRibbon);
+
+  const handleOpenEditorialRibbonModal = (tab: "col1" | "col2" = "col1") => {
+    setEditorialRibbonForm(JSON.parse(JSON.stringify(editorialRibbon)));
+    setEditorialRibbonModalTab(tab);
+    setShowEditorialRibbonModal(true);
+  };
+
+  const handleSaveEditorialRibbon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditorialRibbon(editorialRibbonForm);
+    upsertSiteSettingToSupabase("editorial_ribbon", editorialRibbonForm);
+
+    if (selectedArticle && selectedArticle.id?.startsWith("editorial-ribbon-")) {
+      const idx = parseInt(selectedArticle.id.replace("editorial-ribbon-", ""), 10);
+      if (!isNaN(idx) && editorialRibbonForm.items[idx]) {
+        const item = editorialRibbonForm.items[idx];
+        const rawContent = item.fullContent || item.description || "";
+        const paragraphs = rawContent
+          .split(/\n\n|\n/)
+          .map((p: string) => p.trim())
+          .filter((p: string) => p.length > 0);
+        const isHidden = item.hideDetailPhoto === true || (idx === 1 && item.hideDetailPhoto !== false);
+        const shouldShowImage = !isHidden && Boolean(item.imageUrl);
+        setSelectedArticle({
+          ...selectedArticle,
+          headline: item.headline,
+          deck: item.description || "",
+          image: shouldShowImage ? item.imageUrl : undefined,
+          images: shouldShowImage ? [item.imageUrl] : [],
+          content: paragraphs.length > 0 ? paragraphs : [item.description || item.headline],
+          linkUrl: item.linkUrl && item.linkUrl.trim() !== "" ? item.linkUrl : undefined,
+          readTime: item.tag || selectedArticle.readTime
+        });
+      }
+    }
+
+    setShowEditorialRibbonModal(false);
+    setSavedToast("Editorial Ribbon ('Our Best Advice') berhasil diperbarui!");
+    setTimeout(() => setSavedToast(null), 3000);
+  };
+
+  const handleOpenRibbonArticle = (item: any, index: number) => {
+    const rawContent = item.fullContent || item.description || "";
+    const paragraphs = rawContent
+      .split(/\n\n|\n/)
+      .map((p: string) => p.trim())
+      .filter((p: string) => p.length > 0);
+
+    // Khusus artikel kedua, default hideDetailPhoto adalah true (tersembunyi) kecuali jika di-uncheck
+    const isHidden = item.hideDetailPhoto === true || (index === 1 && item.hideDetailPhoto !== false);
+    const shouldShowImage = !isHidden && Boolean(item.imageUrl);
+
+    const articleObject = {
+      id: `editorial-ribbon-${index}`,
+      mainCategory: (editorialRibbon.title || "OUR BEST ADVICE").toUpperCase(),
+      subCategory: (item.tag || "ADVICE").toUpperCase(),
+      headline: item.headline,
+      deck: item.description || "",
+      author: devProfile?.name || "Andika Catur Ariantono",
+      date: new Date().getFullYear().toString(),
+      readTime: item.tag || "2 MIN READ",
+      image: shouldShowImage ? item.imageUrl : undefined,
+      images: shouldShowImage ? [item.imageUrl] : [],
+      content: paragraphs.length > 0 ? paragraphs : [item.description || item.headline],
+      linkUrl: item.linkUrl && item.linkUrl.trim() !== "" ? item.linkUrl : undefined,
+      tags: [item.tag || "Advice", "Editorial", "Curated"]
+    };
+
+    setSelectedArticle(articleObject);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // Dynamic calendar events list
   const currentNow = new Date();
   const curY = currentNow.getFullYear();
@@ -1511,6 +1645,14 @@ export default function App() {
     fetchSiteSettingFromSupabase("services").then(val => { if (val) setServices(val); });
     fetchSiteSettingFromSupabase("tools_tech").then(val => { if (val) setSectorTools(val); });
     fetchSiteSettingFromSupabase("admin_creds").then(val => { if (val) setAdminCreds(val); });
+    fetchSiteSettingFromSupabase("editorial_ribbon").then(val => {
+      if (val && typeof val === "object" && Array.isArray(val.items)) {
+        if (val.items[1] && val.items[1].hideDetailPhoto === undefined) {
+          val.items[1].hideDetailPhoto = true;
+        }
+        setEditorialRibbon(val);
+      }
+    });
 
     const unSubHero = subscribeToSiteSettingsRealtime("hero", setHeroPortfolio);
     const unSubDev = subscribeToSiteSettingsRealtime("dev_profile", setDevProfile);
@@ -1526,6 +1668,7 @@ export default function App() {
     const unSubWritings = subscribeToSiteSettingsRealtime("writings", setWritings);
     const unSubServices = subscribeToSiteSettingsRealtime("services", setServices);
     const unSubTools = subscribeToSiteSettingsRealtime("tools_tech", setSectorTools);
+    const unSubRibbon = subscribeToSiteSettingsRealtime("editorial_ribbon", setEditorialRibbon);
 
     return () => {
       if (unSubHero) unSubHero();
@@ -1534,6 +1677,7 @@ export default function App() {
       if (unSubWritings) unSubWritings();
       if (unSubServices) unSubServices();
       if (unSubTools) unSubTools();
+      if (unSubRibbon) unSubRibbon();
     };
   }, []);
 
@@ -3137,6 +3281,413 @@ export default function App() {
         </div>
       )}
 
+      {/* EDIT EDITORIAL RIBBON / "OUR BEST ADVICE" MODAL (ADMIN ONLY) */}
+      {showEditorialRibbonModal && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border-4 border-black p-6 sm:p-8 max-w-[620px] w-full shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] rounded-none relative my-8">
+            <button
+              type="button"
+              onClick={() => setShowEditorialRibbonModal(false)}
+              className="absolute top-4 right-4 p-1 text-black hover:bg-gray-200 border border-black cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="text-center mb-6">
+              <span className="bg-black text-[#FFCC00] text-[10px] font-black uppercase px-2.5 py-1 inline-block mb-2 rounded-none">
+                MODE ADMIN PORTOFOLIO
+              </span>
+              <h3 className="text-2xl font-black uppercase tracking-tight" style={{ fontFamily: "Playfair Display, serif" }}>
+                Edit Editorial Ribbon
+              </h3>
+              <p className="text-xs text-black/60 font-serif italic mt-1" style={{ fontFamily: "Jost, sans-serif" }}>
+                Pilih tab di bawah untuk mengedit masing-masing kolom artikel.
+              </p>
+            </div>
+
+            {/* TAB SELECTION - PISAHKAN FORM KOLOM KIRI & KANAN */}
+            <div className="flex border-2 border-black mb-5 bg-gray-100 p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => setEditorialRibbonModalTab("col1")}
+                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  editorialRibbonModalTab === "col1"
+                    ? "bg-black text-[#FFCC00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    : "text-black hover:bg-gray-200"
+                }`}
+              >
+                1. Kolom Kiri
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorialRibbonModalTab("col2")}
+                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  editorialRibbonModalTab === "col2"
+                    ? "bg-black text-[#FFCC00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    : "text-black hover:bg-gray-200"
+                }`}
+              >
+                2. Kolom Kanan
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditorialRibbon} className="space-y-4 text-xs font-bold font-jost" style={{ fontFamily: "'Jost', sans-serif" }}>
+              {/* TAB 1: KOLOM KIRI */}
+              {editorialRibbonModalTab === "col1" && (
+                <div className="border-2 border-black p-4 bg-gray-50/50 space-y-3">
+                  <div className="text-[11px] font-black uppercase tracking-wider text-black flex items-center gap-1.5 border-b border-black/20 pb-1.5">
+                    <span className="w-4 h-4 bg-black text-white flex items-center justify-center text-[9px]">1</span>
+                    EDIT KONTEN KOLOM KIRI
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Headline / Judul *</label>
+                    <input
+                      type="text"
+                      value={editorialRibbonForm.items[0]?.headline || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[0] = { ...newItems[0], headline: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Contoh: Sign Up for the Good Advice Newsletter"
+                      required
+                      className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Upload / Input Gambar Kolom 1 */}
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Foto / Gambar Thumbnail (Opsional)</label>
+                    <div className="space-y-2">
+                      <label className="w-full bg-black text-[#FFCC00] hover:bg-gray-800 text-xs font-black uppercase py-2 px-3 border-2 border-black flex items-center justify-center gap-2 cursor-pointer transition-colors rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <Upload size={14} /> 📁 UPLOAD GAMBAR DARI PERANGKAT
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const compressed = await compressImageFile(file, 800, 0.8);
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[0] = { ...newItems[0], imageUrl: compressed };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            } catch (err) {
+                              console.error("Gagal mengunggah gambar:", err);
+                              alert("Gagal membaca file gambar.");
+                            }
+                            e.target.value = "";
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {editorialRibbonForm.items[0]?.imageUrl && (
+                        <div className="flex items-center gap-2 border-2 border-black p-1.5 bg-white">
+                          <img
+                            src={editorialRibbonForm.items[0].imageUrl}
+                            alt="Preview Thumbnail"
+                            className="w-12 h-12 object-cover border border-black rounded-none flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] font-black uppercase text-green-700 block">✓ Gambar Terpasang</span>
+                            <span className="text-[9px] text-black/60 truncate block font-mono">
+                              {editorialRibbonForm.items[0].imageUrl.startsWith("data:") ? "Gambar Lokal Diunggah" : editorialRibbonForm.items[0].imageUrl}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[0] = { ...newItems[0], imageUrl: "" };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            }}
+                            className="px-2 py-1 bg-red-600 text-white text-[9px] font-black uppercase border border-black hover:bg-red-700 cursor-pointer"
+                            title="Hapus Gambar"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Atau tempel URL Gambar langsung (https://...)"
+                        value={editorialRibbonForm.items[0]?.imageUrl || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[0] = { ...newItems[0], imageUrl: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        className="w-full p-2 border border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+
+                      {editorialRibbonForm.items[0]?.imageUrl && (
+                        <label className="flex items-center gap-2 cursor-pointer pt-1 text-black font-semibold text-[11px] bg-yellow-50 p-2 border border-black/20">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(editorialRibbonForm.items[0]?.hideDetailPhoto)}
+                            onChange={(e) => {
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[0] = { ...newItems[0], hideDetailPhoto: e.target.checked };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            }}
+                            className="w-4 h-4 accent-black rounded-none cursor-pointer"
+                          />
+                          <span>Sembunyikan foto di halaman baca artikel (hanya tampilkan thumbnail kecil di kartu beranda)</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block mb-1 text-black uppercase">Label / Tag (misal: NEWSLETTER)</label>
+                      <input
+                        type="text"
+                        value={editorialRibbonForm.items[0]?.tag || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[0] = { ...newItems[0], tag: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        placeholder="NEWSLETTER / TIPS"
+                        className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-black uppercase">URL Tautan Luar (Opsional)</label>
+                      <input
+                        type="text"
+                        value={editorialRibbonForm.items[0]?.linkUrl || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[0] = { ...newItems[0], linkUrl: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        placeholder="https://... atau kosongkan"
+                        className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Deskripsi Cuplikan / Preview (Opsional)</label>
+                    <textarea
+                      rows={2}
+                      value={editorialRibbonForm.items[0]?.description || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[0] = { ...newItems[0], description: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Cuplikan ringkas tentang cerita ini..."
+                      className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none font-serif"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Isi Detail Lengkap / Naskah Artikel (Opsional)</label>
+                    <textarea
+                      rows={6}
+                      value={editorialRibbonForm.items[0]?.fullContent || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[0] = { ...newItems[0], fullContent: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Tulis naskah uraian artikel lengkap di sini (mendukung paragraf baru)..."
+                      className="w-full p-2.5 border-2 border-black rounded-none text-xs bg-white focus:outline-none font-serif"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: KOLOM KANAN */}
+              {editorialRibbonModalTab === "col2" && (
+                <div className="border-2 border-black p-4 bg-gray-50/50 space-y-3">
+                  <div className="text-[11px] font-black uppercase tracking-wider text-black flex items-center gap-1.5 border-b border-black/20 pb-1.5">
+                    <span className="w-4 h-4 bg-black text-white flex items-center justify-center text-[9px]">2</span>
+                    EDIT KONTEN KOLOM KANAN
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Headline / Judul *</label>
+                    <input
+                      type="text"
+                      value={editorialRibbonForm.items[1]?.headline || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[1] = { ...newItems[1], headline: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Contoh: Why Do Some Older Adults Choose Life Among the Young?"
+                      required
+                      className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Upload / Input Gambar Kolom 2 */}
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Foto / Gambar Thumbnail (Opsional)</label>
+                    <div className="space-y-2">
+                      <label className="w-full bg-black text-[#FFCC00] hover:bg-gray-800 text-xs font-black uppercase py-2 px-3 border-2 border-black flex items-center justify-center gap-2 cursor-pointer transition-colors rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <Upload size={14} /> 📁 UPLOAD GAMBAR DARI PERANGKAT
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const compressed = await compressImageFile(file, 800, 0.8);
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[1] = { ...newItems[1], imageUrl: compressed };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            } catch (err) {
+                              console.error("Gagal mengunggah gambar:", err);
+                              alert("Gagal membaca file gambar.");
+                            }
+                            e.target.value = "";
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {editorialRibbonForm.items[1]?.imageUrl && (
+                        <div className="flex items-center gap-2 border-2 border-black p-1.5 bg-white">
+                          <img
+                            src={editorialRibbonForm.items[1].imageUrl}
+                            alt="Preview Thumbnail"
+                            className="w-12 h-12 object-cover border border-black rounded-none flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] font-black uppercase text-green-700 block">✓ Gambar Terpasang</span>
+                            <span className="text-[9px] text-black/60 truncate block font-mono">
+                              {editorialRibbonForm.items[1].imageUrl.startsWith("data:") ? "Gambar Lokal Diunggah" : editorialRibbonForm.items[1].imageUrl}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[1] = { ...newItems[1], imageUrl: "" };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            }}
+                            className="px-2 py-1 bg-red-600 text-white text-[9px] font-black uppercase border border-black hover:bg-red-700 cursor-pointer"
+                            title="Hapus Gambar"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Atau tempel URL Gambar langsung (https://...)"
+                        value={editorialRibbonForm.items[1]?.imageUrl || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[1] = { ...newItems[1], imageUrl: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        className="w-full p-2 border border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+
+                      {editorialRibbonForm.items[1]?.imageUrl && (
+                        <label className="flex items-center gap-2 cursor-pointer pt-1 text-black font-semibold text-[11px] bg-yellow-50 p-2 border border-black/20">
+                          <input
+                            type="checkbox"
+                            checked={editorialRibbonForm.items[1]?.hideDetailPhoto !== false}
+                            onChange={(e) => {
+                              const newItems = [...editorialRibbonForm.items];
+                              newItems[1] = { ...newItems[1], hideDetailPhoto: e.target.checked };
+                              setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                            }}
+                            className="w-4 h-4 accent-black rounded-none cursor-pointer"
+                          />
+                          <span>Sembunyikan foto di halaman baca artikel (hanya tampilkan thumbnail kecil di kartu beranda)</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block mb-1 text-black uppercase">Label / Tag (misal: 2 MIN READ)</label>
+                      <input
+                        type="text"
+                        value={editorialRibbonForm.items[1]?.tag || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[1] = { ...newItems[1], tag: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        placeholder="2 MIN READ / ESSAY"
+                        className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-black uppercase">URL Tautan Luar (Opsional)</label>
+                      <input
+                        type="text"
+                        value={editorialRibbonForm.items[1]?.linkUrl || ""}
+                        onChange={(e) => {
+                          const newItems = [...editorialRibbonForm.items];
+                          newItems[1] = { ...newItems[1], linkUrl: e.target.value };
+                          setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                        }}
+                        placeholder="https://... atau kosongkan"
+                        className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Deskripsi Cuplikan / Preview (Opsional)</label>
+                    <textarea
+                      rows={2}
+                      value={editorialRibbonForm.items[1]?.description || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[1] = { ...newItems[1], description: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Cuplikan ringkas tentang cerita ini..."
+                      className="w-full p-2 border-2 border-black rounded-none text-xs bg-white focus:outline-none font-serif"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-black uppercase">Isi Detail Lengkap / Naskah Artikel (Opsional)</label>
+                    <textarea
+                      rows={6}
+                      value={editorialRibbonForm.items[1]?.fullContent || ""}
+                      onChange={(e) => {
+                        const newItems = [...editorialRibbonForm.items];
+                        newItems[1] = { ...newItems[1], fullContent: e.target.value };
+                        setEditorialRibbonForm({ ...editorialRibbonForm, items: newItems });
+                      }}
+                      placeholder="Tulis naskah uraian artikel lengkap di sini (mendukung paragraf baru)..."
+                      className="w-full p-2.5 border-2 border-black rounded-none text-xs bg-white focus:outline-none font-serif"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-black text-[#FFCC00] text-xs font-black uppercase py-3 px-4 tracking-widest hover:bg-black/80 transition-colors rounded-none border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <CheckCircle size={14} /> SIMPAN PERUBAHAN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEditorialRibbonModal(false)}
+                  className="bg-gray-200 text-black text-xs font-black uppercase py-3 px-4 rounded-none border-2 border-black hover:bg-gray-300 cursor-pointer"
+                >
+                  BATAL
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* EDIT TOOLS & TECH PER SECTOR MODAL */}
       {showToolsTechModal && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -3873,6 +4424,13 @@ export default function App() {
                 <Edit size={14} /> DEV PROFILE
               </button>
               <button
+                onClick={handleOpenEditorialRibbonModal}
+                className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
+                title="Edit Editorial Ribbon ('Our Best Advice')"
+              >
+                <BookOpen size={14} /> EDITORIAL RIBBON
+              </button>
+              <button
                 onClick={handleOpenCalendarModal}
                 className="bg-[#E5E5E5] text-black border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-gray-300 transition-colors rounded-none flex items-center gap-1.5 cursor-pointer"
                 title="Edit 'Availability Schedule' Info"
@@ -4386,7 +4944,23 @@ export default function App() {
                       <Edit size={12} /> UPDATE PROFILE (ADMIN)
                     </button>
                   )}
-                  {isAdminLoggedIn && selectedArticle.id !== "hero-intro" && (
+                  {isAdminLoggedIn && selectedArticle.id === "editorial-ribbon-0" && (
+                    <button
+                      onClick={() => handleOpenEditorialRibbonModal("col1")}
+                      className="border border-black bg-black text-[#FFCC00] hover:bg-gray-800 px-3 py-1 flex items-center gap-1.5 transition-colors rounded-none text-xs font-black uppercase"
+                    >
+                      <Edit size={12} /> EDIT ARTIKEL INI (ADMIN)
+                    </button>
+                  )}
+                  {isAdminLoggedIn && selectedArticle.id === "editorial-ribbon-1" && (
+                    <button
+                      onClick={() => handleOpenEditorialRibbonModal("col2")}
+                      className="border border-black bg-black text-[#FFCC00] hover:bg-gray-800 px-3 py-1 flex items-center gap-1.5 transition-colors rounded-none text-xs font-black uppercase"
+                    >
+                      <Edit size={12} /> EDIT ARTIKEL INI (ADMIN)
+                    </button>
+                  )}
+                  {isAdminLoggedIn && selectedArticle.id !== "hero-intro" && !selectedArticle.id?.startsWith("editorial-ribbon") && (
                     <button
                       onClick={() => handleStartEditProject(selectedArticle)}
                       className="border border-black bg-black text-[#FFCC00] hover:bg-gray-800 px-3 py-1 flex items-center gap-1.5 transition-colors rounded-none text-xs font-black uppercase"
@@ -4596,18 +5170,84 @@ export default function App() {
                         </div>
                       )}
 
+                      {/* NYTimes-Style Editorial Ribbon / "Our Best Advice" - Hanya Tampil di Komputer & Laptop (Hidden di HP & Tablet/iPad) */}
+                      <div className="hidden lg:block mt-10 pt-5 border-t border-black/30">
+                        {/* Section Header Bar */}
+                        <div className="flex items-center justify-between gap-4 mb-3">
+                          <h3
+                            className="text-sm md:text-base font-bold text-black tracking-tight flex items-center gap-2"
+                            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                          >
+                            <span>{editorialRibbon.title || "Our Best Advice"}</span>
+                          </h3>
+                        </div>
 
-                      {/* 5 Creep Images in Center below Read Full Profile (Spaced Down Appropriately) */}
-                      <div className="mt-12 pt-4 flex items-center justify-center gap-0 flex-wrap sm:flex-nowrap">
-                        {[1, 2, 3, 4, 5].map((idx) => (
-                          <img
-                            key={idx}
-                            src={creepImg}
-                            alt={`Creep Illustration ${idx}`}
-                            className="max-h-[75px] md:max-h-[105px] w-auto object-contain cursor-pointer hover:scale-110 hover:z-10 transition-transform duration-300 -mr-2 last:mr-0"
-                            onClick={() => setSelectedArticle(heroPortfolio)}
-                          />
-                        ))}
+                        {/* 2-Column Teaser Strip */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-black/20 gap-5 md:gap-6">
+                          {editorialRibbon.items?.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className={`${idx > 0 ? "md:pl-6 pt-3 md:pt-0" : "pr-2"} flex flex-col justify-between group cursor-pointer hover:bg-black/[0.02] p-2 -m-2 rounded-none transition-colors relative`}
+                              onClick={() => handleOpenRibbonArticle(item, idx)}
+                              title="Klik untuk membaca halaman detail lengkap"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                {/* Left text content */}
+                                <div className="space-y-1.5 flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h4
+                                      className="text-sm md:text-[15px] font-bold text-black group-hover:underline leading-snug"
+                                      style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                                    >
+                                      {item.headline}
+                                    </h4>
+                                    {isAdminLoggedIn && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenEditorialRibbonModal(idx === 0 ? "col1" : "col2");
+                                        }}
+                                        className="flex-shrink-0 bg-yellow-300 hover:bg-yellow-400 text-black text-[9px] font-black uppercase px-1.5 py-0.5 border border-black flex items-center gap-0.5 transition-colors cursor-pointer"
+                                        title={`Edit Kolom ${idx + 1}`}
+                                      >
+                                        <Edit size={8} /> EDIT
+                                      </button>
+                                    )}
+                                  </div>
+                                  {item.description && (
+                                    <p
+                                      className="text-xs text-black/70 font-normal leading-relaxed line-clamp-2"
+                                      style={{ fontFamily: "'Jost', sans-serif" }}
+                                    >
+                                      {item.description}
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Right thumbnail image (if exists) */}
+                                {item.imageUrl && (
+                                  <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-20 md:w-28 md:h-24 overflow-hidden border border-black bg-gray-100">
+                                    <img
+                                      src={item.imageUrl}
+                                      alt={item.headline}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="pt-3 mt-1 flex items-center justify-between gap-1.5 text-[10px] font-bold uppercase tracking-wider text-black/50 border-t border-black/10">
+                                <span className="bg-black/5 px-1.5 py-0.5 border border-black/10 text-black/70">
+                                  {item.tag}
+                                </span>
+                                <span className="text-[10px] font-black uppercase text-black flex items-center gap-1 group-hover:underline group-hover:text-[#D93829] transition-colors">
+                                  BACA DETAIL <ArrowUpRight size={11} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}
